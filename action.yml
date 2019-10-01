@@ -1,0 +1,13 @@
+name: 'Auto Assign'
+description: 'Add reviewers to pull requests when pull requests are opened.'
+author: 'Kentaro Matsushita'
+inputs:
+  repo-token:
+    description: 'A token for the repo'
+    required: true
+  configuration-path:
+    description: 'A path for the auto-assign configuration'
+    default: '.github/auto_assign.yml'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

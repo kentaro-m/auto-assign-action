@@ -1,0 +1,23 @@
+{
+  "name": "auto-assign-action",
+  "version": "1.0.0",
+  "description": "Add reviewers to pull requests when pull requests are opened.",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Kentaro Matsushita",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.1.1",
+    "@actions/github": "^1.1.0",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash": "^4.14.141",
+    "@types/node": "^12.7.8",
+    "typescript": "^3.6.3"
+  }
+}
