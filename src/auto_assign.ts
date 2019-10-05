@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
-import { chooseUsers, chooseUsersFromGroups } from './utils'
+import { chooseReviewers, chooseAssignees } from './utils'
 
 export interface Config {
   addReviewers: boolean
@@ -36,23 +36,8 @@ export default class AutoAssign {
     }
 
     const owner = this.context.payload.pull_request.user.login
-    const useGroups: boolean =
-      this.config.useReviewGroups &&
-      Object.keys(this.config.reviewGroups).length > 0
 
-    if (useGroups) {
-      this.reviewers = chooseUsersFromGroups(
-        owner,
-        this.config.reviewGroups,
-        this.config.numberOfReviewers
-      )
-    } else {
-      this.reviewers = chooseUsers(
-        this.config.reviewers,
-        this.config.numberOfReviewers,
-        owner
-      )
-    }
+    this.reviewers = chooseReviewers(owner, this.config) 
 
     if (this.config.addReviewers && this.reviewers.length > 0) {
       const result = await this.client.pulls.createReviewRequest({
@@ -64,40 +49,12 @@ export default class AutoAssign {
   }
 
   public async addAssignees(): Promise<void> {
-    let assignees: string[] = []
-
     if (!this.context.payload.pull_request) {
       throw new Error('the webhook payload is not exist')
     }
 
     const owner = this.context.payload.pull_request.user.login
-    const useGroups: boolean =
-      this.config.useAssigneeGroups &&
-      Object.keys(this.config.assigneeGroups).length > 0
-
-    if (typeof this.config.addAssignees === 'string') {
-      if (this.config.addAssignees !== 'author') {
-        throw new Error(
-          "Error in configuration file to do with using addAssignees. Expected 'addAssignees' variable to be either boolean or 'author'"
-        )
-      }
-      assignees = [owner]
-    } else if (useGroups) {
-      assignees = chooseUsersFromGroups(
-        owner,
-        this.config.assigneeGroups,
-        this.config.numberOfAssignees || this.config.numberOfReviewers
-      )
-    } else {
-      const candidates = this.config.assignees
-        ? this.config.assignees
-        : this.config.reviewers
-      assignees = chooseUsers(
-        candidates,
-        this.config.numberOfAssignees || this.config.numberOfReviewers,
-        owner
-      )
-    }
+    const assignees = chooseAssignees(owner, this.config)
 
     if (assignees.length > 0) {
       const result = await this.client.issues.addAssignees({

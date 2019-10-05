@@ -1,6 +1,64 @@
 import _ from 'lodash'
 import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
+import { Config } from './auto_assign'
+
+export function chooseReviewers(owner: string, config: Config): string[] {
+  let reviewers: string[] = []
+  const useGroups: boolean =
+      config.useReviewGroups &&
+      Object.keys(config.reviewGroups).length > 0
+
+  if (useGroups) {
+    reviewers = chooseUsersFromGroups(
+      owner,
+      config.reviewGroups,
+      config.numberOfReviewers
+    )
+  } else {
+    reviewers = chooseUsers(
+      config.reviewers,
+      config.numberOfReviewers,
+      owner
+    )
+  }
+
+  return reviewers
+}
+
+export function chooseAssignees(owner: string, config: Config): string[] {
+  let assignees: string[] = []
+
+  const useGroups: boolean =
+    config.useAssigneeGroups &&
+    Object.keys(config.assigneeGroups).length > 0
+
+  if (typeof config.addAssignees === 'string') {
+    if (config.addAssignees !== 'author') {
+      throw new Error(
+        "Error in configuration file to do with using addAssignees. Expected 'addAssignees' variable to be either boolean or 'author'"
+      )
+    }
+    assignees = [owner]
+  } else if (useGroups) {
+    assignees = chooseUsersFromGroups(
+      owner,
+      config.assigneeGroups,
+      config.numberOfAssignees || config.numberOfReviewers
+    )
+  } else {
+    const candidates = config.assignees
+      ? config.assignees
+      : config.reviewers
+    assignees = chooseUsers(
+      candidates,
+      config.numberOfAssignees || config.numberOfReviewers,
+      owner
+    )
+  }
+
+  return assignees
+}
 
 export function chooseUsers(
   candidates: string[],
