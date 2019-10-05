@@ -3,7 +3,7 @@ import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import { chooseUsers, chooseUsersFromGroups } from './utils'
 
-interface Config {
+export interface Config {
   addReviewers: boolean
   addAssignees: boolean | string
   reviewers: string[]

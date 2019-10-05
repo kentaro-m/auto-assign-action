@@ -2,26 +2,12 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import * as utils from './utils'
-import AutoAssign from './auto_assign'
-
-interface AppConfig {
-  addReviewers: boolean
-  addAssignees: boolean | string
-  reviewers: string[]
-  assignees: string[]
-  numberOfAssignees: number
-  numberOfReviewers: number
-  skipKeywords: string[]
-  useReviewGroups: boolean
-  useAssigneeGroups: boolean
-  reviewGroups: { [key: string]: string[] }
-  assigneeGroups: { [key: string]: string[] }
-}
+import AutoAssign, { Config } from './auto_assign'
 
 export async function handlePullRequest(
   client: github.GitHub,
   context: Context,
-  config: AppConfig
+  config: Config
 ) {
   if (!context.payload.pull_request) {
     throw new Error('the webhook payload is not exist')
