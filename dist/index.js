@@ -1111,90 +1111,9 @@ function authenticationBeforeRequest(state, options) {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(81));
-const github = __importStar(__webpack_require__(946));
-const yaml = __importStar(__webpack_require__(368));
-const utils_1 = __webpack_require__(896);
-const auto_assign_1 = __importDefault(__webpack_require__(459));
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const token = core.getInput('repo-token', { required: true });
-            const client = new github.GitHub(token);
-            const configPath = core.getInput('configuration-path', { required: true });
-            const context = github.context;
-            yield handlePullRequest(client, context, configPath);
-        }
-        catch (error) {
-            core.setFailed(error.message);
-        }
-    });
-}
-function handlePullRequest(client, context, configPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const result = yield client.repos.getContents({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            path: configPath,
-            ref: context.sha,
-        });
-        const data = result.data;
-        if (!data.content) {
-            throw new Error('the configuration file is not found');
-        }
-        const configString = Buffer.from(data.content, 'base64').toString();
-        const config = yaml.safeLoad(configString);
-        if (!config) {
-            throw new Error('the configuration file failed to load');
-        }
-        if (!context.payload.pull_request) {
-            throw new Error('the webhook payload is not exist');
-        }
-        const title = context.payload.pull_request.title;
-        if (config.skipKeywords && utils_1.includesSkipKeywords(title, config.skipKeywords)) {
-            console.log('skips adding reviewers');
-            return;
-        }
-        if (context.payload.pull_request.draft) {
-            console.log('ignore draft PR');
-            return;
-        }
-        if (config.useReviewGroups && !config.reviewGroups) {
-            throw new Error("Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true.");
-        }
-        if (config.useAssigneeGroups && !config.assigneeGroups) {
-            throw new Error("Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true.");
-        }
-        const autoAssign = new auto_assign_1.default(client, context, config);
-        if (config.addReviewers) {
-            yield autoAssign.addReviewers();
-        }
-        if (config.addAssignees) {
-            yield autoAssign.addAssignees();
-        }
-    });
-}
-run();
+const run_1 = __webpack_require__(973);
+run_1.run();
 
 
 /***/ }),
@@ -12396,6 +12315,78 @@ function validate(octokit, options) {
 
   return options;
 }
+
+
+/***/ }),
+
+/***/ 701:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(81));
+const utils = __importStar(__webpack_require__(896));
+const auto_assign_1 = __importDefault(__webpack_require__(459));
+function handlePullRequest(client, context, config) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!context.payload.pull_request) {
+            throw new Error('the webhook payload is not exist');
+        }
+        const title = context.payload.pull_request.title;
+        if (config.skipKeywords && utils.includesSkipKeywords(title, config.skipKeywords)) {
+            console.log('skips adding reviewers');
+            return;
+        }
+        if (context.payload.pull_request.draft) {
+            console.log('ignore draft PR');
+            return;
+        }
+        if (config.useReviewGroups && !config.reviewGroups) {
+            throw new Error("Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true.");
+        }
+        if (config.useAssigneeGroups && !config.assigneeGroups) {
+            throw new Error("Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true.");
+        }
+        const autoAssign = new auto_assign_1.default(client, context, config);
+        if (config.addReviewers) {
+            try {
+                yield autoAssign.addReviewers();
+            }
+            catch (error) {
+                core.debug(error.message);
+            }
+        }
+        if (config.addAssignees) {
+            try {
+                yield autoAssign.addAssignees();
+            }
+            catch (error) {
+                core.debug(error.message);
+            }
+        }
+    });
+}
+exports.handlePullRequest = handlePullRequest;
 
 
 /***/ }),
@@ -31913,11 +31904,28 @@ module.exports = /^#!.*/;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = __importDefault(__webpack_require__(751));
+const yaml = __importStar(__webpack_require__(368));
 function chooseUsers(candidates, desiredNumber, filterUser = '') {
     const filteredCandidates = candidates.filter((reviewer) => {
         return reviewer !== filterUser;
@@ -31946,6 +31954,25 @@ function chooseUsersFromGroups(owner, groups, desiredNumber) {
     return users;
 }
 exports.chooseUsersFromGroups = chooseUsersFromGroups;
+function fetchConfigurationFile(client, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { owner, repo, path, ref } = options;
+        const result = yield client.repos.getContents({
+            owner,
+            repo,
+            path,
+            ref,
+        });
+        const data = result.data;
+        if (!data.content) {
+            throw new Error('the configuration file is not found');
+        }
+        const configString = Buffer.from(data.content, 'base64').toString();
+        const config = yaml.safeLoad(configString);
+        return config;
+    });
+}
+exports.fetchConfigurationFile = fetchConfigurationFile;
 
 
 /***/ }),
@@ -32616,6 +32643,57 @@ module.exports = new Type('tag:yaml.org,2002:binary', {
 /***/ (function() {
 
 eval("require")("encoding");
+
+
+/***/ }),
+
+/***/ 973:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(81));
+const github = __importStar(__webpack_require__(946));
+const utils = __importStar(__webpack_require__(896));
+const handler = __importStar(__webpack_require__(701));
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = core.getInput('repo-token', { required: true });
+            const configPath = core.getInput('configuration-path', { required: true });
+            const client = new github.GitHub(token);
+            const { repo, sha } = github.context;
+            const config = yield utils.fetchConfigurationFile(client, {
+                owner: repo.owner,
+                repo: repo.repo,
+                path: configPath,
+                ref: sha,
+            });
+            yield handler.handlePullRequest(client, github.context, config);
+        }
+        catch (error) {
+            core.setFailed(error.message);
+        }
+    });
+}
+exports.run = run;
 
 
 /***/ }),
