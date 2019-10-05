@@ -27,7 +27,7 @@ export async function handlePullRequest(
     throw new Error('the webhook payload is not exist')
   }
 
-  const { title, draft, user } = context.payload.pull_request
+  const { title, draft, user, number } = context.payload.pull_request
   const {
     skipKeywords,
     useReviewGroups,
@@ -39,11 +39,15 @@ export async function handlePullRequest(
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
-    console.log('skips adding reviewers')
+    core.info(
+      'skips the process to add reviewers/assignees since PR title includes skip-keywords'
+    )
     return
   }
   if (draft) {
-    console.log('ignore draft PR')
+    core.info(
+      'skips the process to add reviewers/assignees since PR type is draft'
+    )
     return
   }
 
@@ -68,9 +72,10 @@ export async function handlePullRequest(
 
       if (reviewers.length > 0) {
         await pr.addReviewers(reviewers)
+        core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
       }
     } catch (error) {
-      core.debug(error.message)
+      core.warning(error.message)
     }
   }
 
@@ -80,9 +85,10 @@ export async function handlePullRequest(
 
       if (assignees.length > 0) {
         await pr.addAssignees(assignees)
+        core.info(`Added assignees to PR #${number}: ${assignees.join(', ')}`)
       }
     } catch (error) {
-      core.debug(error.message)
+      core.warning(error.message)
     }
   }
 }
