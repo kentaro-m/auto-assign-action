@@ -1,4 +1,9 @@
-import { chooseUsers, chooseUsersFromGroups, includesSkipKeywords, fetchConfigurationFile } from '../src/utils'
+import {
+  chooseUsers,
+  chooseUsersFromGroups,
+  includesSkipKeywords,
+  fetchConfigurationFile,
+} from '../src/utils'
 import * as github from '@actions/github'
 
 jest.mock('@actions/github')
@@ -6,12 +11,12 @@ jest.mock('@actions/github')
 describe('chooseUsers', () => {
   test('returns the reviewer list without the PR creator', () => {
     const prCreator = 'pr-creator'
-    const reviewers = ['reviewer1','reviewer2', 'reviewer3', 'pr-creator']
+    const reviewers = ['reviewer1', 'reviewer2', 'reviewer3', 'pr-creator']
     const numberOfReviewers = 0
 
     const list = chooseUsers(reviewers, numberOfReviewers, prCreator)
 
-    expect(list).toEqual(['reviewer1','reviewer2', 'reviewer3'])
+    expect(list).toEqual(['reviewer1', 'reviewer2', 'reviewer3'])
   })
 
   test('returns the only other reviewer', () => {
@@ -26,7 +31,7 @@ describe('chooseUsers', () => {
 
   test('returns the reviewer list if the number of reviewers is setted', () => {
     const prCreator = 'pr-creator'
-    const reviewers = ['reviewer1','reviewer2', 'reviewer3', 'pr-creator']
+    const reviewers = ['reviewer1', 'reviewer2', 'reviewer3', 'pr-creator']
     const numberOfReviewers = 2
 
     const list = chooseUsers(reviewers, numberOfReviewers, prCreator)
@@ -79,13 +84,8 @@ describe('chooseUsersFromGroups', () => {
     // GIVEN
     const owner = 'owner'
     const reviewers = {
-      groupA: [
-        'owner',
-        'reviewer1'
-      ],
-      groupB: [
-        'reviewer2'
-      ]
+      groupA: ['owner', 'reviewer1'],
+      groupB: ['reviewer2'],
     }
     const numberOfReviewers = 1
 
@@ -100,12 +100,8 @@ describe('chooseUsersFromGroups', () => {
     // GIVEN
     const owner = 'owner'
     const reviewers = {
-      groupA: [
-        'owner'
-      ],
-      groupB: [
-        'reviewer2'
-      ]
+      groupA: ['owner'],
+      groupB: ['reviewer2'],
     }
     const numberOfReviewers = 1
 
@@ -121,20 +117,10 @@ describe('chooseUsersFromGroups', () => {
     // GIVEN
     const owner = 'owner'
     const reviewers = {
-      groupA: [
-        'owner',
-        'groupA-1',
-        'groupA-2'
-      ],
-      groupB: [
-        'groupB-1',
-        'groupB-2'
-      ],
+      groupA: ['owner', 'groupA-1', 'groupA-2'],
+      groupB: ['groupB-1', 'groupB-2'],
       groupC: [],
-      groupD: [
-        'groupD-1',
-        'groupD-2'
-      ]
+      groupD: ['groupD-1', 'groupD-2'],
     }
     const numberOfReviewers = 1
 
@@ -152,11 +138,8 @@ describe('chooseUsersFromGroups', () => {
     // GIVEN
     const owner = 'owner'
     const reviewers = {
-      groupA: [
-        'owner',
-        'reviewer1'
-      ],
-      groupB: []
+      groupA: ['owner', 'reviewer1'],
+      groupB: [],
     }
     const numberOfReviewers = 1
 
@@ -173,10 +156,7 @@ describe('chooseUsersFromGroups', () => {
     const owner = 'owner'
     const reviewers = {
       groupA: [],
-      groupB: [
-        'owner',
-        'reviewer1'
-      ]
+      groupB: ['owner', 'reviewer1'],
     }
     const numberOfReviewers = 2
 
@@ -193,7 +173,7 @@ describe('chooseUsersFromGroups', () => {
     const owner = 'owner'
     const reviewers = {
       groupA: [],
-      groupB: []
+      groupB: [],
     }
     const numberOfReviewers = 2
 
@@ -213,9 +193,10 @@ describe('fetchConfigurationFile', () => {
     client.repos = {
       getContents: jest.fn().mockImplementation(async () => ({
         data: {
-          content: 'IyBTZXQgdG8gdHJ1ZSB0byBhZGQgcmV2aWV3ZXJzIHRvIHB1bGwgcmVxdWVzdHMNCmFkZFJldmlld2VyczogdHJ1ZQ0KDQojIFNldCB0byB0cnVlIHRvIGFkZCBhc3NpZ25lZXMgdG8gcHVsbCByZXF1ZXN0cw0KYWRkQXNzaWduZWVzOiBmYWxzZQ0KDQojIEEgbGlzdCBvZiByZXZpZXdlcnMgdG8gYmUgYWRkZWQgdG8gcHVsbCByZXF1ZXN0cyAoR2l0SHViIHVzZXIgbmFtZSkNCnJldmlld2VyczoNCiAgLSByZXZpZXdlckENCiAgLSByZXZpZXdlckINCiAgLSByZXZpZXdlckM='
-        }
-      }))
+          content:
+            'IyBTZXQgdG8gdHJ1ZSB0byBhZGQgcmV2aWV3ZXJzIHRvIHB1bGwgcmVxdWVzdHMNCmFkZFJldmlld2VyczogdHJ1ZQ0KDQojIFNldCB0byB0cnVlIHRvIGFkZCBhc3NpZ25lZXMgdG8gcHVsbCByZXF1ZXN0cw0KYWRkQXNzaWduZWVzOiBmYWxzZQ0KDQojIEEgbGlzdCBvZiByZXZpZXdlcnMgdG8gYmUgYWRkZWQgdG8gcHVsbCByZXF1ZXN0cyAoR2l0SHViIHVzZXIgbmFtZSkNCnJldmlld2VyczoNCiAgLSByZXZpZXdlckENCiAgLSByZXZpZXdlckINCiAgLSByZXZpZXdlckM=',
+        },
+      })),
     } as any
 
     const config = await fetchConfigurationFile(client, {
@@ -228,11 +209,7 @@ describe('fetchConfigurationFile', () => {
     expect(config).toEqual({
       addAssignees: false,
       addReviewers: true,
-      reviewers: [
-        'reviewerA',
-        'reviewerB',
-        'reviewerC'
-      ]
+      reviewers: ['reviewerA', 'reviewerB', 'reviewerC'],
     })
   })
 
@@ -242,18 +219,18 @@ describe('fetchConfigurationFile', () => {
     client.repos = {
       getContents: jest.fn().mockImplementation(async () => ({
         data: {
-          content: ''
-        }
-      }))
+          content: '',
+        },
+      })),
     } as any
 
-    expect(fetchConfigurationFile(client, {
+    expect(
+      fetchConfigurationFile(client, {
         owner: 'kentaro-m',
         repo: 'auto-assign-action-test',
         path: '.github/auto_assign',
         ref: 'sha',
-      }))
-    .rejects
-    .toThrow(/the configuration file is not found/)
+      })
+    ).rejects.toThrow(/the configuration file is not found/)
   })
 })

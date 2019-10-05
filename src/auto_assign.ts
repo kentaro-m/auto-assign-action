@@ -55,7 +55,6 @@ export default class AutoAssign {
     }
 
     if (this.config.addReviewers && this.reviewers.length > 0) {
-      
       const result = await this.client.pulls.createReviewRequest({
         ...this.context.issue,
         reviewers: this.reviewers,
@@ -103,7 +102,7 @@ export default class AutoAssign {
     if (assignees.length > 0) {
       const result = await this.client.issues.addAssignees({
         ...this.context.issue,
-        assignees
+        assignees,
       })
       core.debug(JSON.stringify(result))
     }
