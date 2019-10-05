@@ -18,13 +18,20 @@ interface AppConfig {
   assigneeGroups: { [key: string]: string[] }
 }
 
-export async function handlePullRequest(client: github.GitHub, context: Context, config: AppConfig) {
+export async function handlePullRequest(
+  client: github.GitHub,
+  context: Context,
+  config: AppConfig
+) {
   if (!context.payload.pull_request) {
     throw new Error('the webhook payload is not exist')
   }
 
   const title = context.payload.pull_request.title
-  if (config.skipKeywords && utils.includesSkipKeywords(title, config.skipKeywords)) {
+  if (
+    config.skipKeywords &&
+    utils.includesSkipKeywords(title, config.skipKeywords)
+  ) {
     console.log('skips adding reviewers')
     return
   }

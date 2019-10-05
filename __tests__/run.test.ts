@@ -15,7 +15,6 @@ const coreMocked = mocked(core)
 const mockedHandler = mocked(handler)
 
 describe.only('run', () => {
-  
   beforeEach(() => {
     // @ts-ignore
     github.context = {
@@ -30,19 +29,19 @@ describe.only('run', () => {
           number: 1,
           title: 'test',
           user: {
-            login: 'pr-creator'
-          }
+            login: 'pr-creator',
+          },
         },
         repository: {
           name: 'auto-assign',
           owner: {
-            login: 'kentaro-m'
-          }
-        }
+            login: 'kentaro-m',
+          },
+        },
       },
       repo: {
         owner: 'kentaro-m',
-        repo: 'auto-assign'
+        repo: 'auto-assign',
       },
       issue: {
         owner: 'kentaro-m',
@@ -50,12 +49,12 @@ describe.only('run', () => {
         number: 1,
       },
       sha: '',
-      ref: ''
+      ref: '',
     }
   })
 
   test('succeeds the process', async () => {
-    coreMocked.getInput.mockImplementation((name) => {
+    coreMocked.getInput.mockImplementation(name => {
       switch (name) {
         case 'repo-token':
           return 'token'
@@ -63,15 +62,11 @@ describe.only('run', () => {
           return '.github/auto_assign.yml'
       }
     })
-    
+
     mockedUtils.fetchConfigurationFile.mockImplementation(async () => ({
       addAssignees: false,
       addReviewers: true,
-      reviewers: [
-        'reviewerA',
-        'reviewerB',
-        'reviewerC'
-      ]
+      reviewers: ['reviewerA', 'reviewerB', 'reviewerC'],
     }))
 
     mockedHandler.handlePullRequest.mockImplementation(async () => {})

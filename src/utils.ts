@@ -7,11 +7,9 @@ export function chooseUsers(
   desiredNumber: number,
   filterUser: string = ''
 ): string[] {
-  const filteredCandidates = candidates.filter(
-    (reviewer: string): boolean => {
-      return reviewer !== filterUser
-    }
-  )
+  const filteredCandidates = candidates.filter((reviewer: string): boolean => {
+    return reviewer !== filterUser
+  })
 
   // all-assign
   if (desiredNumber === 0) {

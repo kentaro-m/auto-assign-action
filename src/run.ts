@@ -6,8 +6,10 @@ import * as handler from './handler'
 export async function run() {
   try {
     const token = core.getInput('repo-token', { required: true })
-    const configPath = core.getInput('configuration-path', { required: true })
-    
+    const configPath = core.getInput('configuration-path', {
+      required: true,
+    })
+
     const client = new github.GitHub(token)
     const { repo, sha } = github.context
     const config = await utils.fetchConfigurationFile(client, {
