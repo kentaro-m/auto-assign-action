@@ -4,7 +4,8 @@
   "description": "Add reviewers to pull requests when pull requests are opened.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
   "author": "Kentaro Matsushita",
   "license": "MIT",
@@ -15,9 +16,13 @@
     "lodash": "^4.17.15"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.141",
     "@types/node": "^12.7.8",
+    "jest": "^24.9.0",
+    "jest-circus": "^24.9.0",
+    "ts-jest": "^24.1.0",
     "typescript": "^3.6.3"
   }
 }

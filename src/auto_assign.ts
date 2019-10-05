@@ -3,7 +3,7 @@ import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import { chooseUsers, chooseUsersFromGroups } from './utils'
 
-interface AppConfig {
+interface Config {
   addReviewers: boolean
   addAssignees: boolean | string
   reviewers: string[]
@@ -19,11 +19,11 @@ interface AppConfig {
 
 export default class AutoAssign {
   private client: github.GitHub
-  private config: AppConfig
+  private config: Config
   private context: Context
   private reviewers: string[]
 
-  public constructor(client: github.GitHub, context: Context, config: AppConfig) {
+  public constructor(client: github.GitHub, context: Context, config: Config) {
     this.client = client
     this.config = config
     this.context = context

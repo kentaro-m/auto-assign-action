@@ -1,0 +1,23 @@
+name: 'Test'
+
+on: push
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: setup node 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: install
+        run: npm install
+
+      - name: build
+        run: npm run build
+
+      - name: test
+        run: npm test
