@@ -4,52 +4,62 @@ import * as yaml from 'js-yaml'
 import { Config } from './handler'
 
 export function chooseReviewers(owner: string, config: Config): string[] {
-  let reviewers: string[] = []
+  const { useReviewGroups, reviewGroups, numberOfReviewers, reviewers } = config
+  let chosenReviewers: string[] = []
   const useGroups: boolean =
-    config.useReviewGroups && Object.keys(config.reviewGroups).length > 0
+    useReviewGroups && Object.keys(reviewGroups).length > 0
 
   if (useGroups) {
-    reviewers = chooseUsersFromGroups(
+    chosenReviewers = chooseUsersFromGroups(
       owner,
-      config.reviewGroups,
-      config.numberOfReviewers
+      reviewGroups,
+      numberOfReviewers
     )
   } else {
-    reviewers = chooseUsers(config.reviewers, config.numberOfReviewers, owner)
+    chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
   }
 
-  return reviewers
+  return chosenReviewers
 }
 
 export function chooseAssignees(owner: string, config: Config): string[] {
-  let assignees: string[] = []
+  const {
+    useAssigneeGroups,
+    assigneeGroups,
+    addAssignees,
+    numberOfAssignees,
+    numberOfReviewers,
+    assignees,
+    reviewers,
+  } = config
+  let chosenAssignees: string[] = []
 
   const useGroups: boolean =
-    config.useAssigneeGroups && Object.keys(config.assigneeGroups).length > 0
+    useAssigneeGroups && Object.keys(assigneeGroups).length > 0
 
-  if (typeof config.addAssignees === 'string') {
-    if (config.addAssignees !== 'author') {
+  if (typeof addAssignees === 'string') {
+    if (addAssignees !== 'author') {
       throw new Error(
         "Error in configuration file to do with using addAssignees. Expected 'addAssignees' variable to be either boolean or 'author'"
       )
     }
-    assignees = [owner]
+    chosenAssignees = [owner]
   } else if (useGroups) {
-    assignees = chooseUsersFromGroups(
+    chosenAssignees = chooseUsersFromGroups(
       owner,
-      config.assigneeGroups,
-      config.numberOfAssignees || config.numberOfReviewers
+      assigneeGroups,
+      numberOfAssignees || numberOfReviewers
     )
   } else {
-    const candidates = config.assignees ? config.assignees : config.reviewers
-    assignees = chooseUsers(
+    const candidates = assignees ? assignees : reviewers
+    chosenAssignees = chooseUsers(
       candidates,
-      config.numberOfAssignees || config.numberOfReviewers,
+      numberOfAssignees || numberOfReviewers,
       owner
     )
   }
 
-  return assignees
+  return chosenAssignees
 }
 
 export function chooseUsers(
