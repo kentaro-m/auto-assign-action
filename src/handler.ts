@@ -40,13 +40,13 @@ export async function handlePullRequest(
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
     core.info(
-      'skips the process to add reviewers/assignees since PR title includes skip-keywords'
+      'Skips the process to add reviewers/assignees since PR title includes skip-keywords'
     )
     return
   }
   if (draft) {
     core.info(
-      'skips the process to add reviewers/assignees since PR type is draft'
+      'Skips the process to add reviewers/assignees since PR type is draft'
     )
     return
   }

@@ -80,7 +80,7 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     expect(spy.mock.calls[0][0]).toEqual(
-      'skips the process to add reviewers/assignees since PR title includes skip-keywords'
+      'Skips the process to add reviewers/assignees since PR title includes skip-keywords'
     )
   })
 
@@ -101,7 +101,7 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     expect(spy.mock.calls[0][0]).toEqual(
-      'skips the process to add reviewers/assignees since PR type is draft'
+      'Skips the process to add reviewers/assignees since PR type is draft'
     )
   })
 
