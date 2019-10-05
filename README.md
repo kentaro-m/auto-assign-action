@@ -1,8 +1,6 @@
 # Auto Assign Action
 An action which adds reviewers to the pull request when the pull request is opened.
 
-**:construction: This action is currently under development. Improving features by creating the PR and the issue is always welcome.**
-
 ## :arrow_forward: Usage
 Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to [Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) for running the auto-assign action. Also, add the `GITHUB_TOKEN`, in order for the auto-assign action to calls the GitHub API.
 

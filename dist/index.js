@@ -7286,93 +7286,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ 459:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(81));
-const utils_1 = __webpack_require__(896);
-class AutoAssign {
-    constructor(client, context, config) {
-        this.client = client;
-        this.config = config;
-        this.context = context;
-        this.reviewers = [];
-    }
-    addReviewers() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.context.payload.pull_request) {
-                throw new Error('the webhook payload is not exist');
-            }
-            const owner = this.context.payload.pull_request.user.login;
-            const useGroups = this.config.useReviewGroups &&
-                Object.keys(this.config.reviewGroups).length > 0;
-            if (useGroups) {
-                this.reviewers = utils_1.chooseUsersFromGroups(owner, this.config.reviewGroups, this.config.numberOfReviewers);
-            }
-            else {
-                this.reviewers = utils_1.chooseUsers(this.config.reviewers, this.config.numberOfReviewers, owner);
-            }
-            if (this.config.addReviewers && this.reviewers.length > 0) {
-                const result = yield this.client.pulls.createReviewRequest(Object.assign(Object.assign({}, this.context.issue), { reviewers: this.reviewers }));
-                core.debug(JSON.stringify(result));
-            }
-        });
-    }
-    addAssignees() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let assignees = [];
-            if (!this.context.payload.pull_request) {
-                throw new Error('the webhook payload is not exist');
-            }
-            const owner = this.context.payload.pull_request.user.login;
-            const useGroups = this.config.useAssigneeGroups &&
-                Object.keys(this.config.assigneeGroups).length > 0;
-            if (typeof this.config.addAssignees === 'string') {
-                if (this.config.addAssignees !== 'author') {
-                    throw new Error("Error in configuration file to do with using addAssignees. Expected 'addAssignees' variable to be either boolean or 'author'");
-                }
-                assignees = [owner];
-            }
-            else if (useGroups) {
-                assignees = utils_1.chooseUsersFromGroups(owner, this.config.assigneeGroups, this.config.numberOfAssignees || this.config.numberOfReviewers);
-            }
-            else {
-                const candidates = this.config.assignees
-                    ? this.config.assignees
-                    : this.config.reviewers;
-                assignees = utils_1.chooseUsers(candidates, this.config.numberOfAssignees || this.config.numberOfReviewers, owner);
-            }
-            if (assignees.length > 0) {
-                const result = yield this.client.issues.addAssignees(Object.assign(Object.assign({}, this.context.issue), { assignees }));
-                core.debug(JSON.stringify(result));
-            }
-        });
-    }
-}
-exports.default = AutoAssign;
-
-
-/***/ }),
-
 /***/ 480:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -12340,48 +12253,55 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(81));
 const utils = __importStar(__webpack_require__(896));
-const auto_assign_1 = __importDefault(__webpack_require__(459));
+const pull_request_1 = __webpack_require__(928);
 function handlePullRequest(client, context, config) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!context.payload.pull_request) {
             throw new Error('the webhook payload is not exist');
         }
-        const title = context.payload.pull_request.title;
-        if (config.skipKeywords && utils.includesSkipKeywords(title, config.skipKeywords)) {
-            console.log('skips adding reviewers');
+        const { title, draft, user, number } = context.payload.pull_request;
+        const { skipKeywords, useReviewGroups, useAssigneeGroups, reviewGroups, assigneeGroups, addReviewers, addAssignees, } = config;
+        if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
+            core.info('skips the process to add reviewers/assignees since PR title includes skip-keywords');
             return;
         }
-        if (context.payload.pull_request.draft) {
-            console.log('ignore draft PR');
+        if (draft) {
+            core.info('skips the process to add reviewers/assignees since PR type is draft');
             return;
         }
-        if (config.useReviewGroups && !config.reviewGroups) {
+        if (useReviewGroups && !reviewGroups) {
             throw new Error("Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true.");
         }
-        if (config.useAssigneeGroups && !config.assigneeGroups) {
+        if (useAssigneeGroups && !assigneeGroups) {
             throw new Error("Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true.");
         }
-        const autoAssign = new auto_assign_1.default(client, context, config);
-        if (config.addReviewers) {
+        const owner = user.login;
+        const pr = new pull_request_1.PullRequest(client, context);
+        if (addReviewers) {
             try {
-                yield autoAssign.addReviewers();
+                const reviewers = utils.chooseReviewers(owner, config);
+                if (reviewers.length > 0) {
+                    yield pr.addReviewers(reviewers);
+                    core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`);
+                }
             }
             catch (error) {
-                core.debug(error.message);
+                core.warning(error.message);
             }
         }
-        if (config.addAssignees) {
+        if (addAssignees) {
             try {
-                yield autoAssign.addAssignees();
+                const assignees = utils.chooseAssignees(owner, config);
+                if (assignees.length > 0) {
+                    yield pr.addAssignees(assignees);
+                    core.info(`Added assignees to PR #${number}: ${assignees.join(', ')}`);
+                }
             }
             catch (error) {
-                core.debug(error.message);
+                core.warning(error.message);
             }
         }
     });
@@ -31926,6 +31846,39 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = __importDefault(__webpack_require__(751));
 const yaml = __importStar(__webpack_require__(368));
+function chooseReviewers(owner, config) {
+    const { useReviewGroups, reviewGroups, numberOfReviewers, reviewers } = config;
+    let chosenReviewers = [];
+    const useGroups = useReviewGroups && Object.keys(reviewGroups).length > 0;
+    if (useGroups) {
+        chosenReviewers = chooseUsersFromGroups(owner, reviewGroups, numberOfReviewers);
+    }
+    else {
+        chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner);
+    }
+    return chosenReviewers;
+}
+exports.chooseReviewers = chooseReviewers;
+function chooseAssignees(owner, config) {
+    const { useAssigneeGroups, assigneeGroups, addAssignees, numberOfAssignees, numberOfReviewers, assignees, reviewers, } = config;
+    let chosenAssignees = [];
+    const useGroups = useAssigneeGroups && Object.keys(assigneeGroups).length > 0;
+    if (typeof addAssignees === 'string') {
+        if (addAssignees !== 'author') {
+            throw new Error("Error in configuration file to do with using addAssignees. Expected 'addAssignees' variable to be either boolean or 'author'");
+        }
+        chosenAssignees = [owner];
+    }
+    else if (useGroups) {
+        chosenAssignees = chooseUsersFromGroups(owner, assigneeGroups, numberOfAssignees || numberOfReviewers);
+    }
+    else {
+        const candidates = assignees ? assignees : reviewers;
+        chosenAssignees = chooseUsers(candidates, numberOfAssignees || numberOfReviewers, owner);
+    }
+    return chosenAssignees;
+}
+exports.chooseAssignees = chooseAssignees;
 function chooseUsers(candidates, desiredNumber, filterUser = '') {
     const filteredCandidates = candidates.filter((reviewer) => {
         return reviewer !== filterUser;
@@ -32248,6 +32201,64 @@ module.exports = new Schema({
     __webpack_require__(83)
   ]
 });
+
+
+/***/ }),
+
+/***/ 928:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(81));
+class PullRequest {
+    constructor(client, context) {
+        this.client = client;
+        this.context = context;
+    }
+    addReviewers(reviewers) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { owner, repo, number: pull_number } = this.context.issue;
+            const result = yield this.client.pulls.createReviewRequest({
+                owner,
+                repo,
+                pull_number,
+                reviewers,
+            });
+            core.debug(JSON.stringify(result));
+        });
+    }
+    addAssignees(assignees) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { owner, repo, number: issue_number } = this.context.issue;
+            const result = yield this.client.issues.addAssignees({
+                owner,
+                repo,
+                issue_number,
+                assignees,
+            });
+            core.debug(JSON.stringify(result));
+        });
+    }
+}
+exports.PullRequest = PullRequest;
 
 
 /***/ }),
@@ -32677,7 +32688,9 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core.getInput('repo-token', { required: true });
-            const configPath = core.getInput('configuration-path', { required: true });
+            const configPath = core.getInput('configuration-path', {
+                required: true,
+            });
             const client = new github.GitHub(token);
             const { repo, sha } = github.context;
             const config = yield utils.fetchConfigurationFile(client, {
