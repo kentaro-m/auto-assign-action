@@ -6,8 +6,7 @@ import { Config } from './auto_assign'
 export function chooseReviewers(owner: string, config: Config): string[] {
   let reviewers: string[] = []
   const useGroups: boolean =
-      config.useReviewGroups &&
-      Object.keys(config.reviewGroups).length > 0
+    config.useReviewGroups && Object.keys(config.reviewGroups).length > 0
 
   if (useGroups) {
     reviewers = chooseUsersFromGroups(
@@ -16,11 +15,7 @@ export function chooseReviewers(owner: string, config: Config): string[] {
       config.numberOfReviewers
     )
   } else {
-    reviewers = chooseUsers(
-      config.reviewers,
-      config.numberOfReviewers,
-      owner
-    )
+    reviewers = chooseUsers(config.reviewers, config.numberOfReviewers, owner)
   }
 
   return reviewers
@@ -30,8 +25,7 @@ export function chooseAssignees(owner: string, config: Config): string[] {
   let assignees: string[] = []
 
   const useGroups: boolean =
-    config.useAssigneeGroups &&
-    Object.keys(config.assigneeGroups).length > 0
+    config.useAssigneeGroups && Object.keys(config.assigneeGroups).length > 0
 
   if (typeof config.addAssignees === 'string') {
     if (config.addAssignees !== 'author') {
@@ -47,9 +41,7 @@ export function chooseAssignees(owner: string, config: Config): string[] {
       config.numberOfAssignees || config.numberOfReviewers
     )
   } else {
-    const candidates = config.assignees
-      ? config.assignees
-      : config.reviewers
+    const candidates = config.assignees ? config.assignees : config.reviewers
     assignees = chooseUsers(
       candidates,
       config.numberOfAssignees || config.numberOfReviewers,

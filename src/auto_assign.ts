@@ -1,7 +1,7 @@
-import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import { chooseReviewers, chooseAssignees } from './utils'
+import * as pr from './pull_request'
 
 export interface Config {
   addReviewers: boolean
@@ -37,14 +37,10 @@ export default class AutoAssign {
 
     const owner = this.context.payload.pull_request.user.login
 
-    this.reviewers = chooseReviewers(owner, this.config) 
+    this.reviewers = chooseReviewers(owner, this.config)
 
     if (this.config.addReviewers && this.reviewers.length > 0) {
-      const result = await this.client.pulls.createReviewRequest({
-        ...this.context.issue,
-        reviewers: this.reviewers,
-      })
-      core.debug(JSON.stringify(result))
+      await pr.addReviewers(this.client, this.context, this.reviewers)
     }
   }
 
@@ -57,11 +53,7 @@ export default class AutoAssign {
     const assignees = chooseAssignees(owner, this.config)
 
     if (assignees.length > 0) {
-      const result = await this.client.issues.addAssignees({
-        ...this.context.issue,
-        assignees,
-      })
-      core.debug(JSON.stringify(result))
+      await pr.addAssignees(this.client, this.context, assignees)
     }
   }
 }
