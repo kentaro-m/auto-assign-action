@@ -2,9 +2,9 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import * as utils from './utils'
-import AutoAssign from './auto_assign'
+import { PullRequest } from './pull_request'
 
-interface AppConfig {
+export interface Config {
   addReviewers: boolean
   addAssignees: boolean | string
   reviewers: string[]
@@ -21,50 +21,66 @@ interface AppConfig {
 export async function handlePullRequest(
   client: github.GitHub,
   context: Context,
-  config: AppConfig
+  config: Config
 ) {
   if (!context.payload.pull_request) {
     throw new Error('the webhook payload is not exist')
   }
 
-  const title = context.payload.pull_request.title
-  if (
-    config.skipKeywords &&
-    utils.includesSkipKeywords(title, config.skipKeywords)
-  ) {
+  const { title, draft, user } = context.payload.pull_request
+  const {
+    skipKeywords,
+    useReviewGroups,
+    useAssigneeGroups,
+    reviewGroups,
+    assigneeGroups,
+    addReviewers,
+    addAssignees,
+  } = config
+
+  if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
     console.log('skips adding reviewers')
     return
   }
-  if (context.payload.pull_request.draft) {
+  if (draft) {
     console.log('ignore draft PR')
     return
   }
 
-  if (config.useReviewGroups && !config.reviewGroups) {
+  if (useReviewGroups && !reviewGroups) {
     throw new Error(
       "Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true."
     )
   }
 
-  if (config.useAssigneeGroups && !config.assigneeGroups) {
+  if (useAssigneeGroups && !assigneeGroups) {
     throw new Error(
       "Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true."
     )
   }
 
-  const autoAssign = new AutoAssign(client, context, config)
+  const owner = user.login
+  const pr = new PullRequest(client, context)
 
-  if (config.addReviewers) {
+  if (addReviewers) {
     try {
-      await autoAssign.addReviewers()
+      const reviewers = utils.chooseReviewers(owner, config)
+
+      if (reviewers.length > 0) {
+        await pr.addReviewers(reviewers)
+      }
     } catch (error) {
       core.debug(error.message)
     }
   }
 
-  if (config.addAssignees) {
+  if (addAssignees) {
     try {
-      await autoAssign.addAssignees()
+      const assignees = utils.chooseAssignees(owner, config)
+
+      if (assignees.length > 0) {
+        await pr.addAssignees(assignees)
+      }
     } catch (error) {
       core.debug(error.message)
     }
