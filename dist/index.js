@@ -12265,11 +12265,11 @@ function handlePullRequest(client, context, config) {
         const { title, draft, user, number } = context.payload.pull_request;
         const { skipKeywords, useReviewGroups, useAssigneeGroups, reviewGroups, assigneeGroups, addReviewers, addAssignees, } = config;
         if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
-            core.info('skips the process to add reviewers/assignees since PR title includes skip-keywords');
+            core.info('Skips the process to add reviewers/assignees since PR title includes skip-keywords');
             return;
         }
         if (draft) {
-            core.info('skips the process to add reviewers/assignees since PR type is draft');
+            core.info('Skips the process to add reviewers/assignees since PR type is draft');
             return;
         }
         if (useReviewGroups && !reviewGroups) {
