@@ -1,4 +1,5 @@
 import * as github from '@actions/github'
+import * as core from '@actions/core'
 import { Context } from '@actions/github/lib/context'
 import * as handler from '../src/handler'
 
@@ -63,7 +64,7 @@ describe('handlePullRequest', () => {
   })
 
   test('exits the process if pull requests include skip words in the title', async () => {
-    const spy = jest.spyOn(console, 'log')
+    const spy = jest.spyOn(core, 'info')
 
     context.payload.pull_request.title = 'wip test'
 
@@ -78,11 +79,13 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(spy.mock.calls[0][0]).toEqual('skips adding reviewers')
+    expect(spy.mock.calls[0][0]).toEqual(
+      'skips the process to add reviewers/assignees since PR title includes skip-keywords'
+    )
   })
 
   test('skips drafts', async () => {
-    const spy = jest.spyOn(console, 'log')
+    const spy = jest.spyOn(core, 'info')
 
     context.payload.pull_request.draft = true
 
@@ -97,7 +100,9 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(spy.mock.calls[0][0]).toEqual('ignore draft PR')
+    expect(spy.mock.calls[0][0]).toEqual(
+      'skips the process to add reviewers/assignees since PR type is draft'
+    )
   })
 
   test('adds reviewers to pull requests if the configuration is enabled, but no assignees', async () => {
