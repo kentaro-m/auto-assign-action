@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
-import { Config } from './auto_assign'
+import { Config } from './handler'
 
 export function chooseReviewers(owner: string, config: Config): string[] {
   let reviewers: string[] = []
