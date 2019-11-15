@@ -12,7 +12,7 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1
+      - uses: kentaro-m/auto-assign-action@v1.0.1
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 ```
