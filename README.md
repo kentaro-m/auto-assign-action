@@ -115,5 +115,14 @@ Add the PR creator as assignee to the pull request.
 addAssignees: author
 ```
 
+### Specify labels the PR must have
+The action will only run if the PR has any of the specified labels
+
+```yaml
+labels:
+  - my_label
+  - another_label
+```
+
 ## :memo: Licence
 MIT
