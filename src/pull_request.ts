@@ -32,4 +32,14 @@ export class PullRequest {
     })
     core.debug(JSON.stringify(result))
   }
+
+  async hasAnyLabel(labels: string[]): Promise<boolean> {
+    const { owner, repo, number: pull_number } = this.context.issue
+    const pullRequestLabels = (await this.client.issues.listLabelsOnIssue({
+      number: pull_number,
+      owner,
+      repo,
+    })).data
+    return pullRequestLabels.some(label => labels.includes(label.name))
+  }
 }
