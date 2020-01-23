@@ -9,6 +9,7 @@ export interface Config {
   addAssignees: boolean | string
   reviewers: string[]
   assignees: string[]
+  labels?: string[]
   numberOfAssignees: number
   numberOfReviewers: number
   skipKeywords: string[]
@@ -36,6 +37,7 @@ export async function handlePullRequest(
     assigneeGroups,
     addReviewers,
     addAssignees,
+    labels,
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
@@ -65,6 +67,16 @@ export async function handlePullRequest(
 
   const owner = user.login
   const pr = new PullRequest(client, context)
+
+  if (labels !== undefined && labels.length > 0) {
+    const hasLabels = await pr.hasAnyLabel(labels)
+    if (!hasLabels) {
+      core.info(
+        'Skips the process to add reviewers/assignees since PR is not tagged with any of the labels'
+      )
+      return
+    }
+  }
 
   if (addReviewers) {
     try {
