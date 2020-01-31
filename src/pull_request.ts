@@ -36,7 +36,7 @@ export class PullRequest {
   async hasAnyLabel(labels: string[]): Promise<boolean> {
     const { owner, repo, number: pull_number } = this.context.issue
     const pullRequestLabels = (await this.client.issues.listLabelsOnIssue({
-      number: pull_number,
+      issue_number: pull_number,
       owner,
       repo,
     })).data
