@@ -20,6 +20,7 @@ describe('handlePullRequest', () => {
         number: '1',
         pull_request: {
           number: 1,
+          labels: [],
           title: 'test',
           user: {
             login: 'pr-creator',
@@ -831,11 +832,7 @@ describe('handlePullRequest', () => {
       labels: ['test_label'],
     } as any
 
-    client.issues = {
-      listLabelsOnIssue: jest
-        .fn()
-        .mockResolvedValue({ data: [{ name: 'some_label' }] }),
-    } as any
+    context.payload.pull_request.labels = [{ name: 'some_label' }]
 
     await handler.handlePullRequest(client, context, config)
 
@@ -855,12 +852,7 @@ describe('handlePullRequest', () => {
 
     const client = new github.GitHub('token')
 
-    client.issues = {
-      addAssignees: jest.fn().mockImplementation(async () => {}),
-      listLabelsOnIssue: jest
-        .fn()
-        .mockResolvedValue({ data: [{ name: 'some_label' }] }),
-    } as any
+    context.payload.pull_request.labels = [{ name: 'some_label' }]
 
     client.pulls = {
       createReviewRequest: jest.fn().mockImplementation(async () => {}),

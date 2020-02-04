@@ -69,7 +69,7 @@ export async function handlePullRequest(
   const pr = new PullRequest(client, context)
 
   if (labels !== undefined && labels.length > 0) {
-    const hasLabels = await pr.hasAnyLabel(labels)
+    const hasLabels = pr.hasAnyLabel(labels)
     if (!hasLabels) {
       core.info(
         'Skips the process to add reviewers/assignees since PR is not tagged with any of the labels'
