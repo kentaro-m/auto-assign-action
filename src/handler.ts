@@ -9,7 +9,10 @@ export interface Config {
   addAssignees: boolean | string
   reviewers: string[]
   assignees: string[]
-  labels?: string[]
+  filterLabels?: {
+    include?: string[]
+    exclude?: string[]
+  }
   numberOfAssignees: number
   numberOfReviewers: number
   skipKeywords: string[]
@@ -37,7 +40,7 @@ export async function handlePullRequest(
     assigneeGroups,
     addReviewers,
     addAssignees,
-    labels,
+    filterLabels,
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
@@ -68,13 +71,25 @@ export async function handlePullRequest(
   const owner = user.login
   const pr = new PullRequest(client, context)
 
-  if (labels !== undefined && labels.length > 0) {
-    const hasLabels = pr.hasAnyLabel(labels)
-    if (!hasLabels) {
-      core.info(
-        'Skips the process to add reviewers/assignees since PR is not tagged with any of the labels'
-      )
-      return
+  if (filterLabels !== undefined) {
+    if (filterLabels.include !== undefined && filterLabels.include.length > 0) {
+      const hasLabels = pr.hasAnyLabel(filterLabels.include)
+      if (!hasLabels) {
+        core.info(
+          'Skips the process to add reviewers/assignees since PR is not tagged with any of the filterLabels.include'
+        )
+        return
+      }
+    }
+
+    if (filterLabels.exclude !== undefined && filterLabels.exclude.length > 0) {
+      const hasLabels = pr.hasAnyLabel(filterLabels.exclude)
+      if (hasLabels) {
+        core.info(
+          'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'
+        )
+        return
+      }
     }
   }
 

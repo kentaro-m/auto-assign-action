@@ -824,12 +824,12 @@ describe('handlePullRequest', () => {
     )
   })
 
-  test('skips pull requests that do not have any of the specified labels', async () => {
+  test('skips pull requests that do not have any of the filterLabels.include labels', async () => {
     const spy = jest.spyOn(core, 'info')
 
     const client = new github.GitHub('token')
     const config = {
-      labels: ['test_label'],
+      filterLabels: { include: ['test_label'] },
     } as any
 
     context.payload.pull_request.labels = [{ name: 'some_label' }]
@@ -837,7 +837,27 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     expect(spy.mock.calls[0][0]).toEqual(
-      'Skips the process to add reviewers/assignees since PR is not tagged with any of the labels'
+      'Skips the process to add reviewers/assignees since PR is not tagged with any of the filterLabels.include'
+    )
+  })
+
+  test('skips pull requests that have any of the filterLabels.exclude labels', async () => {
+    const spy = jest.spyOn(core, 'info')
+
+    const client = new github.GitHub('token')
+    const config = {
+      filterLabels: { include: ['test_label'], exclude: ['wip'] },
+    } as any
+
+    context.payload.pull_request.labels = [
+      { name: 'test_label' },
+      { name: 'wip' },
+    ]
+
+    await handler.handlePullRequest(client, context, config)
+
+    expect(spy.mock.calls[0][0]).toEqual(
+      'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'
     )
   })
 
@@ -845,7 +865,7 @@ describe('handlePullRequest', () => {
     const config = {
       addAssignees: false,
       addReviewers: true,
-      labels: ['some_label', 'another_label'],
+      filterLabels: { include: ['some_label', 'another_label'] },
       numberOfReviewers: 0,
       reviewers: ['reviewer1', 'reviewer2', 'reviewer3', 'pr-creator'],
     } as any
