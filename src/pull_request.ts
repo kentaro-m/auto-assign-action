@@ -32,4 +32,12 @@ export class PullRequest {
     })
     core.debug(JSON.stringify(result))
   }
+
+  hasAnyLabel(labels: string[]): boolean {
+    if (!this.context.payload.pull_request) {
+      return false
+    }
+    const { labels: pullRequestLabels = [] } = this.context.payload.pull_request
+    return pullRequestLabels.some(label => labels.includes(label.name))
+  }
 }
