@@ -109,10 +109,10 @@ useAssigneeGroups: false
 ```
 
 ### Assign Author as Assignee
-Add the PR creator as assignee to the pull request.
+Add the PR creator as the assignee of the pull request.
 
 ```yaml
-# Set to author to set pr creater as assignee
+# Set addAssignees to 'author' to set the PR creator as the assignee.
 addAssignees: author
 ```
 
