@@ -2,7 +2,7 @@
 An action which adds reviewers to the pull request when the pull request is opened.
 
 ## :arrow_forward: Usage
-Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to [Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) for running the auto-assign action. Also, add the `GITHUB_TOKEN`, in order for the auto-assign action to calls the GitHub API.
+Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to [Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) for running the auto-assign action.
 
 ```yml
 name: 'Auto Assign'
@@ -14,7 +14,6 @@ jobs:
     steps:
       - uses: kentaro-m/auto-assign-action@v1.1.0
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
           configuration-path: ".github/some_name_for_configs.yml" # Only needed if you use something other than .github/auto_assign.yml
 ```
 
