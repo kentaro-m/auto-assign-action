@@ -27,10 +27,10 @@
     "@types/lodash": "^4.14.141",
     "@types/node": "^12.7.8",
     "husky": "^3.0.8",
-    "jest": "^24.9.0",
-    "jest-circus": "^24.9.0",
+    "jest": "^26.0.1",
+    "jest-circus": "^26.0.1",
     "prettier": "^1.18.2",
-    "ts-jest": "^24.1.0",
+    "ts-jest": "^26.1.0",
     "typescript": "^3.6.3"
   },
   "husky": {
