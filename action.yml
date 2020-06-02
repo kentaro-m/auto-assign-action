@@ -4,7 +4,8 @@ author: 'Kentaro Matsushita'
 inputs:
   repo-token:
     description: 'A token for the repo'
-    required: true
+    default: ${{ github.token }}
+    required: false
   configuration-path:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
