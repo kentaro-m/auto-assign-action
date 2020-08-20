@@ -6,7 +6,7 @@ Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to
 
 ```yml
 name: 'Auto Assign'
-on: pull_request
+on: pull_request_target
 
 jobs:
   add-reviews:
