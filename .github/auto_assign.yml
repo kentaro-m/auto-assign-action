@@ -2,7 +2,7 @@
 addReviewers: false
 
 # Set to true to add assignees to pull requests
-addAssignees: true
+addAssignees: author
 
 # A list of assignees, overrides reviewers if set
 assignees:
