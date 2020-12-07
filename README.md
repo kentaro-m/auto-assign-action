@@ -15,6 +15,7 @@ jobs:
       - uses: kentaro-m/auto-assign-action@v1.1.2
         with:
           configuration-path: ".github/some_name_for_configs.yml" # Only needed if you use something other than .github/auto_assign.yml
+          configuration: ${{ secrets.REVIEWER_CONFIG }} # Only needed if you want to provide (parts of the) configuration in a variable instead of a file.
 ```
 
 Create a separate configuration file for the auto-assign action (e.g. `.github/auto_assign.yml`).
@@ -129,6 +130,9 @@ filterLabels:
     - wip
 
 ```
+
+### Configuration in a variable
+If you want to use a list of reviewers from a secret or from an output of a previous action you can use the configuration input to pass configuration data in yaml format. The variables and data that can be passed are exactly the same as those in the config file, and will overwrite the variables that are defined in config data if they overlap.
 
 ## :memo: Licence
 MIT

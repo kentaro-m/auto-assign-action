@@ -124,3 +124,15 @@ export async function fetchConfigurationFile(client: github.GitHub, options) {
 
   return config
 }
+
+export async function mergeConfiguration(configObj, configStr) {
+  if (configStr == '') {
+    return configObj
+  }
+
+  const config = await yaml.safeLoad(configStr)
+
+  let merged = { ...configObj, ...config }
+
+  return merged
+}

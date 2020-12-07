@@ -3,6 +3,7 @@ import {
   chooseUsersFromGroups,
   includesSkipKeywords,
   fetchConfigurationFile,
+  mergeConfiguration,
 } from '../src/utils'
 import * as github from '@actions/github'
 
@@ -232,5 +233,31 @@ describe('fetchConfigurationFile', () => {
         ref: 'sha',
       })
     ).rejects.toThrow(/the configuration file is not found/)
+  })
+})
+describe('mergeConfigurationData', () => {
+  test('override a variable from a config file', async () => {
+    const fileConfig = {
+      addAssignees: false,
+      addReviewers: true,
+      numberOfReviewers: 0,
+      reviewers: ['reviewer1', 'reviewer2', 'reviewer3'],
+      assignees: ['assignee1', 'assignee2', 'assignee3'],
+    } as any
+
+    const configStr = `
+    reviewers:
+      - reviewer3
+      - reviewer4
+    `
+    const config = await mergeConfiguration(fileConfig, configStr)
+
+    expect(config).toEqual({
+      addAssignees: false,
+      addReviewers: true,
+      numberOfReviewers: 0,
+      reviewers: ['reviewer3', 'reviewer4'],
+      assignees: ['assignee1', 'assignee2', 'assignee3'],
+    })
   })
 })

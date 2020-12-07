@@ -9,6 +9,9 @@ inputs:
   configuration-path:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
+  configuration:
+    description: 'Directly give auto-assign configuration as a variable. This overrides whatever is set in the configuration file and expects the same syntax'
+    default: ''
 runs:
   using: 'node12'
   main: 'dist/index.js'
