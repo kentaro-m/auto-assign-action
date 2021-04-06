@@ -20,6 +20,8 @@ export interface Config {
   useAssigneeGroups: boolean
   reviewGroups: { [key: string]: string[] }
   assigneeGroups: { [key: string]: string[] }
+  random: boolean
+  randomAssignees: string[]
 }
 
 export async function handlePullRequest(
@@ -69,6 +71,7 @@ export async function handlePullRequest(
   }
 
   const owner = user.login
+  const userType = user.type
   const pr = new PullRequest(client, context)
 
   if (filterLabels !== undefined) {
@@ -108,7 +111,7 @@ export async function handlePullRequest(
 
   if (addAssignees) {
     try {
-      const assignees = utils.chooseAssignees(owner, config)
+      const assignees = utils.chooseAssignees(owner, userType, config)
 
       if (assignees.length > 0) {
         await pr.addAssignees(assignees)

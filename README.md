@@ -130,5 +130,16 @@ filterLabels:
 
 ```
 
+### Random Assignee
+This will only take effect if the PR was opened by a bot
+
+```yaml
+random: true
+randomAssignees:
+  - user1
+  - user2
+
+```
+
 ## :memo: Licence
 MIT
