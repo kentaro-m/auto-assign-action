@@ -20,6 +20,7 @@ export interface Config {
   useAssigneeGroups: boolean
   reviewGroups: { [key: string]: string[] }
   assigneeGroups: { [key: string]: string[] }
+  runOnDraft?: boolean
 }
 
 export async function handlePullRequest(
@@ -41,6 +42,7 @@ export async function handlePullRequest(
     addReviewers,
     addAssignees,
     filterLabels,
+    runOnDraft,
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
@@ -49,7 +51,7 @@ export async function handlePullRequest(
     )
     return
   }
-  if (draft) {
+  if (!runOnDraft && draft) {
     core.info(
       'Skips the process to add reviewers/assignees since PR type is draft'
     )
