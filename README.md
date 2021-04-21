@@ -7,7 +7,7 @@ Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to
 ```yml
 name: 'Auto Assign'
 on:
-  pull_request
+  pull_request:
     types: [opened, ready_for_review]
 
 jobs:
