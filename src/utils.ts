@@ -22,7 +22,11 @@ export function chooseReviewers(owner: string, config: Config): string[] {
   return chosenReviewers
 }
 
-export function chooseAssignees(owner: string, config: Config): string[] {
+export function chooseAssignees(
+  owner: string,
+  userType: string,
+  config: Config
+): string[] {
   const {
     useAssigneeGroups,
     assigneeGroups,
@@ -31,11 +35,24 @@ export function chooseAssignees(owner: string, config: Config): string[] {
     numberOfReviewers,
     assignees,
     reviewers,
+    random,
+    randomAssignees,
   } = config
   let chosenAssignees: string[] = []
-
+  const userTypeRegex = new RegExp('^Bot$')
   const useGroups: boolean =
     useAssigneeGroups && Object.keys(assigneeGroups).length > 0
+
+  if (random && userTypeRegex.test(userType)) {
+    if (randomAssignees.length === 0) {
+      throw new Error(
+        "Error in configuration file to do with using randomAssignees. Expected 'randomAssignees' variable to be list of users"
+      )
+    }
+    const randomSelection =
+      randomAssignees[Math.floor(Math.random() * randomAssignees.length)]
+    return [randomSelection]
+  }
 
   if (typeof addAssignees === 'string') {
     if (addAssignees !== 'author') {
