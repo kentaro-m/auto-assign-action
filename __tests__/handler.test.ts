@@ -85,7 +85,11 @@ describe('handlePullRequest', () => {
     )
   })
 
-  test('skips drafts', async () => {
+  test.each`
+    runOnDraft
+    ${true}
+    ${false}
+  `('skips drafts', async ({ runOnDraft }) => {
     const spy = jest.spyOn(core, 'info')
 
     context.payload.pull_request.draft = true
@@ -97,13 +101,17 @@ describe('handlePullRequest', () => {
       numberOfReviewers: 0,
       reviewers: ['reviewer1', 'reviewer2', 'reviewer3'],
       skipKeywords: ['wip'],
+      runOnDraft,
     } as any
 
     await handler.handlePullRequest(client, context, config)
-
-    expect(spy.mock.calls[0][0]).toEqual(
-      'Skips the process to add reviewers/assignees since PR type is draft'
-    )
+    runOnDraft
+      ? expect(spy.mock.calls[0][0]).not.toEqual(
+          'Skips the process to add reviewers/assignees since PR type is draft'
+        )
+      : expect(spy.mock.calls[0][0]).toEqual(
+          'Skips the process to add reviewers/assignees since PR type is draft'
+        )
   })
 
   test('adds reviewers to pull requests if the configuration is enabled, but no assignees', async () => {
