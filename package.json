@@ -20,7 +20,7 @@
     "@actions/core": "^1.1.1",
     "@actions/github": "^1.1.0",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
