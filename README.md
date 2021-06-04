@@ -1,6 +1,18 @@
 # Auto Assign Action
 An action which adds reviewers to the pull request when the pull request is opened.
 
+**Update 02-06-2021**
+
+Appfactory does have a part of this action in a secret var for easier maintenance (one location to update).
+
+The content of this secret can be found in the file auto_assign.example.
+
+The secret can be found in:
+Organization Account: KPN Appfactory
+Account setting -> Secrets -> REVIEWER_LIST
+
+To change the list just update the secret contents with the updates contents of auto_assign.example.
+
 ## :arrow_forward: Usage
 Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to [Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) for running the auto-assign action.
 
