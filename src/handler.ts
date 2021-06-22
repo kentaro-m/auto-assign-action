@@ -75,7 +75,7 @@ export async function handlePullRequest(
 
   if (filterLabels !== undefined) {
     if (filterLabels.include !== undefined && filterLabels.include.length > 0) {
-      const hasLabels = pr.hasAnyLabel(filterLabels.include)
+      const hasLabels = await pr.hasAnyLabel(filterLabels.include)
       if (!hasLabels) {
         core.info(
           'Skips the process to add reviewers/assignees since PR is not tagged with any of the filterLabels.include'
@@ -85,7 +85,7 @@ export async function handlePullRequest(
     }
 
     if (filterLabels.exclude !== undefined && filterLabels.exclude.length > 0) {
-      const hasLabels = pr.hasAnyLabel(filterLabels.exclude)
+      const hasLabels = await pr.hasAnyLabel(filterLabels.exclude)
       if (hasLabels) {
         core.info(
           'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'

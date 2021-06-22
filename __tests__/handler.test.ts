@@ -840,7 +840,14 @@ describe('handlePullRequest', () => {
       filterLabels: { include: ['test_label'] },
     } as any
 
-    context.payload.pull_request.labels = [{ name: 'some_label' }]
+    // MOCKS
+    client.pulls = {
+      get: jest.fn().mockImplementation(async () => ({
+        data: {
+          labels: [{ name: 'some_label' }],
+        },
+      })),
+    } as any
 
     await handler.handlePullRequest(client, context, config)
 
@@ -857,12 +864,20 @@ describe('handlePullRequest', () => {
       filterLabels: { include: ['test_label'], exclude: ['wip'] },
     } as any
 
-    context.payload.pull_request.labels = [
-      { name: 'test_label' },
-      { name: 'wip' },
-    ]
+    // MOCKS
+    client.pulls = {
+      get: jest.fn().mockImplementation(async () => ({
+        data: {
+          labels: [{ name: 'test_label' }, { name: 'wip' }],
+        },
+      })),
+    } as any
 
-    await handler.handlePullRequest(client, context, config)
+    context.payload.pull_request.labels = await handler.handlePullRequest(
+      client,
+      context,
+      config
+    )
 
     expect(spy.mock.calls[0][0]).toEqual(
       'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'
@@ -880,9 +895,13 @@ describe('handlePullRequest', () => {
 
     const client = new github.GitHub('token')
 
-    context.payload.pull_request.labels = [{ name: 'some_label' }]
-
+    // MOCKS
     client.pulls = {
+      get: jest.fn().mockImplementation(async () => ({
+        data: {
+          labels: [{ name: 'some_label' }],
+        },
+      })),
       createReviewRequest: jest.fn().mockImplementation(async () => {}),
     } as any
 
