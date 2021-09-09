@@ -9,6 +9,7 @@ export interface Config {
   addReviewers: boolean
   addAssignees: boolean | string
   reviewers: string[]
+  teamReviewers?: string[]
   assignees: string[]
   filterLabels?: {
     include?: string[]
@@ -45,6 +46,7 @@ export async function handlePullRequest(
     addAssignees,
     filterLabels,
     runOnDraft,
+    teamReviewers,
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
@@ -98,6 +100,19 @@ export async function handlePullRequest(
   }
 
   if (addReviewers) {
+    if (teamReviewers && teamReviewers.length > 0) {
+      try {
+        await pr.addTeamReviewers(teamReviewers)
+        core.info(
+          `Added team_reviewers to PR #${number}: ${teamReviewers.join(', ')}`
+        )
+      } catch (error) {
+        if (error instanceof Error) {
+          core.warning(error.message)
+        }
+      }
+    }
+
     try {
       const reviewers = utils.chooseReviewers(owner, config)
 

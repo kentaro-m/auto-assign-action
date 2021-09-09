@@ -22,6 +22,17 @@ export class PullRequest {
     core.debug(JSON.stringify(result))
   }
 
+  async addTeamReviewers(team_reviewers: string[]): Promise<void> {
+    const { owner, repo, number: pull_number } = this.context.issue
+    const result = await this.client.pulls.createReviewRequest({
+      owner,
+      repo,
+      pull_number,
+      team_reviewers,
+    })
+    core.debug(JSON.stringify(result))
+  }
+
   async addAssignees(assignees: string[]): Promise<void> {
     const { owner, repo, number: issue_number } = this.context.issue
     const result = await this.client.issues.addAssignees({
