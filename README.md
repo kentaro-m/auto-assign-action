@@ -1,7 +1,9 @@
 # Auto Assign Action
+
 An action which adds reviewers to the pull request when the pull request is opened.
 
 ## :arrow_forward: Usage
+
 Create a workflow (e.g. `.github/workflows/action.yml` For more detail, refer to [Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)) for running the auto-assign action.
 
 ```yml
@@ -14,14 +16,15 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.0
+      - uses: kentaro-m/auto-assign-action@v1.2.1
         with:
-          configuration-path: ".github/some_name_for_configs.yml" # Only needed if you use something other than .github/auto_assign.yml
+          configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
 ```
 
 Create a separate configuration file for the auto-assign action (e.g. `.github/auto_assign.yml`).
 
 ### Single Reviewers List
+
 Add reviewers/assignees to the pull request based on single reviewers list.
 
 ```yaml
@@ -40,7 +43,6 @@ reviewers:
 # A number of reviewers added to the pull request
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 0
-
 # A list of assignees, overrides reviewers if set
 # assignees:
 #   - assigneeA
@@ -56,6 +58,7 @@ numberOfReviewers: 0
 ```
 
 ### Multiple Reviewers List
+
 Add reviewers/assignees to the pull request based on multiple reviewers list.
 
 If you and peers work at the separate office or they work at the separate team by roles like frontend and backend, you might be good to use adding reviewers from each group.
@@ -92,7 +95,6 @@ reviewGroups:
 
 # Set to true to add assignees from different groups to pull requests
 useAssigneeGroups: false
-
 # A list of assignees, split into different froups, to be added to pull requests (GitHub user name)
 # assigneeGroups:
 #   groupA:
@@ -110,6 +112,7 @@ useAssigneeGroups: false
 ```
 
 ### Assign Author as Assignee
+
 Add the PR creator as the assignee of the pull request.
 
 ```yaml
@@ -118,6 +121,7 @@ addAssignees: author
 ```
 
 ### Filter by label
+
 The action will only run if the PR meets the specified filters
 
 ```yaml
@@ -129,8 +133,8 @@ filterLabels:
   # Not run
   exclude:
     - wip
-
 ```
 
 ## :memo: Licence
+
 MIT
