@@ -104,7 +104,9 @@ export async function handlePullRequest(
         core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
       }
     } catch (error) {
-      core.warning(error.message)
+      if (error instanceof Error) {
+        core.warning(error.message)
+      }
     }
   }
 
@@ -117,7 +119,9 @@ export async function handlePullRequest(
         core.info(`Added assignees to PR #${number}: ${assignees.join(', ')}`)
       }
     } catch (error) {
-      core.warning(error.message)
+      if (error instanceof Error) {
+        core.warning(error.message)
+      }
     }
   }
 }
