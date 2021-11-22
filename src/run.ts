@@ -10,7 +10,7 @@ export async function run() {
       required: true,
     })
 
-    const client = new github.GitHub(token)
+    const client = github.getOctokit(token)
     const { repo, sha } = github.context
     const config = await utils.fetchConfigurationFile(client, {
       owner: repo.owner,

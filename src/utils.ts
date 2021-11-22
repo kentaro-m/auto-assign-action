@@ -1,7 +1,7 @@
 import _ from 'lodash'
-import * as github from '@actions/github'
 import * as yaml from 'js-yaml'
 import { Config } from './handler'
+import { Client } from './types'
 
 export function chooseReviewers(owner: string, config: Config): string[] {
   const { useReviewGroups, reviewGroups, numberOfReviewers, reviewers } = config
@@ -104,9 +104,9 @@ export function chooseUsersFromGroups(
   return users
 }
 
-export async function fetchConfigurationFile(client: github.GitHub, options) {
+export async function fetchConfigurationFile(client: Client, options) {
   const { owner, repo, path, ref } = options
-  const result = await client.repos.getContents({
+  const result = await client.rest.repos.getContent({
     owner,
     repo,
     path,
