@@ -188,16 +188,20 @@ describe('chooseUsersFromGroups', () => {
 
 describe('fetchConfigurationFile', () => {
   test('fetchs the configuration file', async () => {
-    const client = new github.GitHub('token')
-
-    client.repos = {
-      getContents: jest.fn().mockImplementation(async () => ({
-        data: {
-          content:
-            'IyBTZXQgdG8gdHJ1ZSB0byBhZGQgcmV2aWV3ZXJzIHRvIHB1bGwgcmVxdWVzdHMNCmFkZFJldmlld2VyczogdHJ1ZQ0KDQojIFNldCB0byB0cnVlIHRvIGFkZCBhc3NpZ25lZXMgdG8gcHVsbCByZXF1ZXN0cw0KYWRkQXNzaWduZWVzOiBmYWxzZQ0KDQojIEEgbGlzdCBvZiByZXZpZXdlcnMgdG8gYmUgYWRkZWQgdG8gcHVsbCByZXF1ZXN0cyAoR2l0SHViIHVzZXIgbmFtZSkNCnJldmlld2VyczoNCiAgLSByZXZpZXdlckENCiAgLSByZXZpZXdlckINCiAgLSByZXZpZXdlckM=',
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        repos: {
+          getContent: async () => ({
+            data: {
+              content:
+                'IyBTZXQgdG8gdHJ1ZSB0byBhZGQgcmV2aWV3ZXJzIHRvIHB1bGwgcmVxdWVzdHMNCmFkZFJldmlld2VyczogdHJ1ZQ0KDQojIFNldCB0byB0cnVlIHRvIGFkZCBhc3NpZ25lZXMgdG8gcHVsbCByZXF1ZXN0cw0KYWRkQXNzaWduZWVzOiBmYWxzZQ0KDQojIEEgbGlzdCBvZiByZXZpZXdlcnMgdG8gYmUgYWRkZWQgdG8gcHVsbCByZXF1ZXN0cyAoR2l0SHViIHVzZXIgbmFtZSkNCnJldmlld2VyczoNCiAgLSByZXZpZXdlckENCiAgLSByZXZpZXdlckINCiAgLSByZXZpZXdlckM=',
+            },
+          }),
         },
-      })),
-    } as any
+      },
+    }))
+
+    const client = github.getOctokit('token')
 
     const config = await fetchConfigurationFile(client, {
       owner: 'kentaro-m',
@@ -214,17 +218,21 @@ describe('fetchConfigurationFile', () => {
   })
 
   test('responds with an error if failure to fetch the configuration file', async () => {
-    const client = new github.GitHub('token')
-
-    client.repos = {
-      getContents: jest.fn().mockImplementation(async () => ({
-        data: {
-          content: '',
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        repos: {
+          getContent: async () => ({
+            data: {
+              content: '',
+            },
+          }),
         },
-      })),
-    } as any
+      },
+    }))
 
-    expect(
+    const client = github.getOctokit('token')
+
+    expect(async () =>
       fetchConfigurationFile(client, {
         owner: 'kentaro-m',
         repo: 'auto-assign-action-test',
