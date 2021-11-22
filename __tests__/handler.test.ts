@@ -470,46 +470,40 @@ describe('handlePullRequest', () => {
    *   - if assignees is > 0, select assignees randomly (exclude self) from each group
    *     - if #peopleInGroup is < assignees, select all people in that group to be assignees
    */
-  test('responds with the error if review groups are enabled, but no reviewGroups variable is defined in configuration', async () => {
-    try {
-      // GIVEN
-      const config = {
-        useReviewGroups: true,
-      } as any
+  test('responds with the error if review groups are enabled, but no reviewGroups variable is defined in configuration', () => {
+    // GIVEN
+    const config = {
+      useReviewGroups: true,
+    } as any
 
-      const client = github.getOctokit('token')
+    const client = github.getOctokit('token')
 
-      // WHEN
-      await handler.handlePullRequest(client, context, config)
-    } catch (error) {
-      // THEN
-      expect(error).toEqual(
-        new Error(
-          "Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true."
-        )
+    // THEN
+    expect(
+      handler.handlePullRequest(client, context, config)
+    ).rejects.toThrowError(
+      new Error(
+        "Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true."
       )
-    }
+    )
   })
 
   test('responds with the error if assignee groups are enabled, but no assigneeGroups variable is defined in configuration', async () => {
-    try {
-      // GIVEN
-      const config = {
-        useAssigneeGroups: true,
-      } as any
+    // GIVEN
+    const config = {
+      useAssigneeGroups: true,
+    } as any
 
-      const client = github.getOctokit('token')
+    const client = github.getOctokit('token')
 
-      // WHEN
-      await handler.handlePullRequest(client, context, config)
-    } catch (error) {
-      // THEN
-      expect(error).toEqual(
-        new Error(
-          "Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true."
-        )
+    // THEN
+    expect(
+      handler.handlePullRequest(client, context, config)
+    ).rejects.toThrowError(
+      new Error(
+        "Error in configuration file to do with using review groups. Expected 'assigneeGroups' variable to be set because the variable 'useAssigneeGroups' = true."
       )
-    }
+    )
   })
 
   test('adds reviewers to pull request from reviewers if groups are enabled and empty', async () => {
