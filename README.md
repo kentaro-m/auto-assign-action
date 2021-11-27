@@ -21,6 +21,25 @@ jobs:
           configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
 ```
 
+Change event that triggers a workflow to the `pull_request_target` if you want to enable the auto-assign action when opening pull requests from fork repositories or bots like Dependabot.
+
+Using dangerous misuse of the `pull_request_target` event can be a security risk, so make sure you understand pros and cons before using it. 
+
+See below for details:
+
+- [Events that trigger workflows / Pull request target - GitHub Docs](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#pull_request_target)
+- [Events that trigger workflows / Pull request events for forked repositories - GitHub Docs](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#pull-request-events-for-forked-repositories)
+
+```diff
+name: 'Auto Assign'
+ on:
+-  pull_request:
++  pull_request_target:
+     types: [opened, ready_for_review]
+
+ jobs:
+```
+
 Create a separate configuration file for the auto-assign action (e.g. `.github/auto_assign.yml`).
 
 ### Single Reviewers List
