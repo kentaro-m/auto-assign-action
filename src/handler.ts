@@ -3,6 +3,7 @@ import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import * as utils from './utils'
 import { PullRequest } from './pull_request'
+import { PullRequestEvent } from '@octokit/webhooks-types'
 
 export interface Config {
   addReviewers: boolean
@@ -32,7 +33,8 @@ export async function handlePullRequest(
     throw new Error('the webhook payload is not exist')
   }
 
-  const { title, draft, user, number } = context.payload.pull_request
+  const { pull_request: event } = context.payload as PullRequestEvent
+  const { title, draft, user, number } = event
   const {
     skipKeywords,
     useReviewGroups,
