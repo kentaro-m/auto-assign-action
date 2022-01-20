@@ -154,6 +154,14 @@ filterLabels:
     - wip
 ```
 
+### Filter draft PRs
+
+The action will only run for non draft PRs. If you want to run for all PRs, you need to enable it to run o drafts
+
+```yaml
+runOnDraft: true
+```
+
 ## :memo: Licence
 
 MIT
