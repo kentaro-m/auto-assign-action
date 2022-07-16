@@ -34,7 +34,14 @@ export async function handlePullRequest(
   }
 
   const { pull_request: event } = context.payload as PullRequestEvent
-  const { title, draft, user, number } = event
+  const {
+    title,
+    draft,
+    user,
+    number,
+    assignees: currentAssignees,
+    requested_reviewers: currentReviewers,
+  } = event
   const {
     skipKeywords,
     useReviewGroups,
@@ -98,6 +105,13 @@ export async function handlePullRequest(
   }
 
   if (addReviewers) {
+    if (currentReviewers.length > 0) {
+      core.info(
+        'Skips the process to add reviewers/assignees since PR is already filled the number of reviewers based on the `numberOfReviewers`'
+      )
+      return
+    }
+
     try {
       const reviewers = utils.chooseReviewers(owner, config)
 
@@ -113,6 +127,13 @@ export async function handlePullRequest(
   }
 
   if (addAssignees) {
+    if (currentAssignees.length > 0) {
+      core.info(
+        'Skips the process to add reviewers/assignees since PR is already filled the number of assignees based on the `numberOfAssignees`'
+      )
+      return
+    }
+
     try {
       const assignees = utils.chooseAssignees(owner, config)
 

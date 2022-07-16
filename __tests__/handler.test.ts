@@ -2,6 +2,7 @@ import * as github from '@actions/github'
 import * as core from '@actions/core'
 import { Context } from '@actions/github/lib/context'
 import * as handler from '../src/handler'
+import { PullRequestEvent } from '@octokit/webhooks-types'
 
 jest.mock('@actions/core')
 jest.mock('@actions/github')
@@ -25,6 +26,8 @@ describe('handlePullRequest', () => {
           user: {
             login: 'pr-creator',
           },
+          requested_reviewers: [],
+          assignees: [],
         },
         repository: {
           name: 'auto-assign',
@@ -866,6 +869,22 @@ describe('handlePullRequest', () => {
 
     expect(spy.mock.calls[0][0]).toEqual(
       'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'
+    )
+  })
+
+  test('skips', async () => {
+    const spy = jest.spyOn(core, 'info')
+
+    const client = new github.GitHub('token')
+    const config = {} as any
+
+    context.payload.pull_request.requested_reviewers = ['reviewer1']
+
+    await handler.handlePullRequest(client, context, config)
+
+    console.log(spy.mock.calls[0])
+    expect(spy.mock.calls[0][0]).toEqual(
+      'Skips the process to add reviewers/assignees since PR is already filled the number of reviewers based on the `numberOfReviewers`'
     )
   })
 
