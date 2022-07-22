@@ -30,10 +30,10 @@
     "@types/node": "12.7.8",
     "@vercel/ncc": "0.24.0",
     "husky": "3.0.8",
-    "jest": "^27.3.1",
-    "jest-circus": "^27.3.1",
+    "jest": "27.3.1",
+    "jest-circus": "27.3.1",
     "prettier": "1.18.2",
-    "ts-jest": "^27.0.7",
+    "ts-jest": "27.0.7",
     "typescript": "3.9.10"
   },
   "husky": {
