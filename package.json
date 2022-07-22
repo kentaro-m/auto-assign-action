@@ -32,7 +32,7 @@
     "husky": "3.1.0",
     "jest": "27.3.1",
     "jest-circus": "27.3.1",
-    "prettier": "1.18.2",
+    "prettier": "1.19.1",
     "ts-jest": "27.0.7",
     "typescript": "3.9.10"
   },
