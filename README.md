@@ -16,7 +16,7 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.1
+      - uses: kentaro-m/auto-assign-action@v1.2.2
         with:
           configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
 ```
