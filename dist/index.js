@@ -335,7 +335,7 @@ function chooseAssignees(owner, config) {
 exports.chooseAssignees = chooseAssignees;
 function chooseUsers(candidates, desiredNumber, filterUser = '') {
     const filteredCandidates = candidates.filter((reviewer) => {
-        return reviewer !== filterUser;
+        return reviewer.toLowerCase() !== filterUser.toLowerCase();
     });
     // all-assign
     if (desiredNumber === 0) {
