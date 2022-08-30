@@ -68,7 +68,7 @@ export function chooseUsers(
   filterUser: string = ''
 ): string[] {
   const filteredCandidates = candidates.filter((reviewer: string): boolean => {
-    return reviewer !== filterUser
+    return reviewer.toLowerCase() !== filterUser.toLowerCase()
   })
 
   // all-assign
