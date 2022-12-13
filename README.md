@@ -58,7 +58,7 @@ reviewers:
   - reviewerA
   - reviewerB
   - reviewerC
-
+  
 # A number of reviewers added to the pull request
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 0
@@ -124,6 +124,38 @@ useAssigneeGroups: false
 #     - assigneeD
 #     - assigneeE
 #     - assigneeF
+
+# A list of keywords to be skipped the process that add reviewers if pull requests include it
+# skipKeywords:
+#   - wip
+```
+
+
+### Team Reviewers
+
+Add team reviewers/assignees to the pull request based on team reviewers list.
+
+```yaml
+# Set to true to add reviewers to pull requests
+addReviewers: true
+
+# Set to true to add assignees to pull requests
+addAssignees: false
+
+# A list of reviewers to be added to pull requests (GitHub user name)
+teamReviewers:
+  - teamA
+  - teamB
+  - teamC
+  
+# A list of assignees, overrides reviewers if set
+# assignees:
+#   - assigneeA
+
+# A number of assignees to add to the pull request
+# Set to 0 to add all of the assignees.
+# Uses numberOfReviewers if unset.
+# numberOfAssignees: 2
 
 # A list of keywords to be skipped the process that add reviewers if pull requests include it
 # skipKeywords:
