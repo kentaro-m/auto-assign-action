@@ -111,18 +111,18 @@ export async function handlePullRequest(
           core.warning(error.message)
         }
       }
-    }
+    } else {
+      try {
+        const reviewers = utils.chooseReviewers(owner, config)
 
-    try {
-      const reviewers = utils.chooseReviewers(owner, config)
-
-      if (reviewers.length > 0) {
-        await pr.addReviewers(reviewers)
-        core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        core.warning(error.message)
+        if (reviewers.length > 0) {
+          await pr.addReviewers(reviewers)
+          core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          core.warning(error.message)
+        }
       }
     }
   }
