@@ -28,6 +28,7 @@ export class PullRequest {
       owner,
       repo,
       pull_number,
+      reviewers: [],
       team_reviewers,
     })
     core.debug(JSON.stringify(result))
