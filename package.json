@@ -29,7 +29,7 @@
     "@types/lodash": "4.14.141",
     "@types/node": "12.7.8",
     "@vercel/ncc": "0.36.0",
-    "husky": "8.0.2",
+    "husky": "8.0.3",
     "jest": "27.5.1",
     "jest-circus": "27.5.1",
     "prettier": "1.19.1",
