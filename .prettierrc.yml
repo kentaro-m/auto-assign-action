@@ -1,4 +1,6 @@
-trailingComma: "es5"
-tabWidth: 2
+arrowParens: avoid
+jsxSingleQuote: true
 semi: false
 singleQuote: true
+trailingComma: all
+useTabs: true

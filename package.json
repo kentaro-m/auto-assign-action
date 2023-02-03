@@ -1,45 +1,20 @@
 {
   "name": "auto-assign-action",
-  "version": "1.2.4",
+  "version": "1.0.0",
   "description": "Add reviewers to pull requests when pull requests are opened.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kentaro-m/auto-assign-action.git"
+    "url": "git+https://github.com/chronograph-pe/auto-assign-action.git"
   },
-  "main": "lib/main.js",
-  "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts",
-    "package": "ncc build --source-map --license licenses.txt"
-  },
-  "author": "Kentaro Matsushita",
+  "main": "src/index.js",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.6.0",
-    "@actions/github": "^1.1.0",
-    "js-yaml": "^3.13.1",
-    "lodash": "^4.17.20"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@octokit/webhooks-types": "6.10.0",
-    "@types/jest": "27.0.3",
-    "@types/js-yaml": "3.12.1",
-    "@types/lodash": "4.14.141",
-    "@types/node": "12.7.8",
-    "@vercel/ncc": "0.36.1",
-    "husky": "8.0.3",
-    "jest": "27.5.1",
-    "jest-circus": "27.5.1",
-    "prettier": "1.19.1",
-    "ts-jest": "27.1.5",
-    "typescript": "4.9.4"
-  },
-  "husky": {
-    "skipCI": true,
-    "hooks": {
-      "pre-commit": "npm run format && git add ."
-    }
+    "prettier": "1.19.1"
   }
 }

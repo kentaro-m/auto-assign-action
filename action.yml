@@ -1,17 +1,15 @@
 name: 'Auto Assign Action'
-description: 'Add reviewers to pull requests when pull requests are opened.'
-author: 'Kentaro Matsushita'
+description: 'Add team reviewers to pull requests when pull requests are opened.'
 inputs:
-  repo-token:
-    description: 'A token for the repo'
-    default: ${{ github.token }}
-    required: false
-  configuration-path:
-    description: 'A path for the auto-assign configuration'
-    default: '.github/auto_assign.yml'
+  github_token:
+    description: 'An organization token with `pull_request:write` and `members:read` acccess'
+    required: true
+  teams:
+    description: 'A comma-separated list of team slugs eligible to be assigned as reviewers'
+    required: true
 runs:
   using: 'node16'
-  main: 'dist/index.js'
+  main: 'src/index.js'
 branding:
   icon: 'user-plus'
   color: 'blue'
