@@ -64,17 +64,30 @@ describe.only('run', () => {
           return ''
       }
     })
+    coreMocked.setOutput.mockImplementation(() => {})
 
     mockedUtils.fetchConfigurationFile.mockImplementation(async () => ({
       addAssignees: false,
       addReviewers: true,
       reviewers: ['reviewerA', 'reviewerB', 'reviewerC'],
     }))
+    mockedUtils.toMentions.mockImplementation(() => 'mocked value')
 
-    mockedHandler.handlePullRequest.mockImplementation(async () => {})
+    mockedHandler.handlePullRequest.mockImplementation(async () => ({
+      reviewers: ['reviewerA'],
+      assignees: [],
+    }))
 
     await run()
 
     expect(mockedHandler.handlePullRequest).toBeCalled()
+    expect(coreMocked.setOutput.mock.calls[0]).toEqual([
+      'reviewers',
+      'mocked value',
+    ])
+    expect(coreMocked.setOutput.mock.calls[1]).toEqual([
+      'assignees',
+      'mocked value',
+    ])
   })
 })

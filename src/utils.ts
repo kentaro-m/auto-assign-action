@@ -124,3 +124,7 @@ export async function fetchConfigurationFile(client: Client, options) {
 
   return config
 }
+
+export function toMentions(usernames: string[]): string {
+  return usernames.map(username => `@${username}`).join(', ')
+}
