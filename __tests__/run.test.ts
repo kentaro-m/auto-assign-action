@@ -1,4 +1,4 @@
-import { mocked } from 'ts-jest/utils'
+import { mocked } from 'jest-mock'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { run } from '../src/run'
