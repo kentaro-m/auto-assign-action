@@ -16,9 +16,28 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.1
+      - uses: kentaro-m/auto-assign-action@v1.2.4
         with:
           configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
+```
+
+Change event that triggers a workflow to the `pull_request_target` if you want to enable the auto-assign action when opening pull requests from fork repositories or bots like Dependabot.
+
+Using dangerous misuse of the `pull_request_target` event can be a security risk, so make sure you understand pros and cons before using it. 
+
+See below for details:
+
+- [Events that trigger workflows / Pull request target - GitHub Docs](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#pull_request_target)
+- [Events that trigger workflows / Pull request events for forked repositories - GitHub Docs](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#pull-request-events-for-forked-repositories)
+
+```diff
+name: 'Auto Assign'
+ on:
+-  pull_request:
++  pull_request_target:
+     types: [opened, ready_for_review]
+
+ jobs:
 ```
 
 Create a separate configuration file for the auto-assign action (e.g. `.github/auto_assign.yml`).
@@ -133,6 +152,14 @@ filterLabels:
   # Not run
   exclude:
     - wip
+```
+
+### Filter draft PRs
+
+The action will only run for non-draft PRs. If you want to run for all PRs, you need to enable it to run on drafts.
+
+```yaml
+runOnDraft: true
 ```
 
 ## :memo: Licence

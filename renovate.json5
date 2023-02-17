@@ -1,0 +1,5 @@
+{
+  "extends": [
+    "github>kentaro-m/renovate-config:default.json5"
+  ]
+}

@@ -10,7 +10,7 @@ inputs:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 branding:
   icon: 'user-plus'
