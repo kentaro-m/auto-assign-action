@@ -67,7 +67,7 @@ describe('handlePullRequest', () => {
   test('exits the process if pull requests include skip words in the title', async () => {
     const spy = jest.spyOn(core, 'info')
 
-    context.payload.pull_request.title = 'wip test'
+    context.payload.pull_request!.title = 'wip test'
 
     const client = github.getOctokit('token')
     const config = {
@@ -104,7 +104,7 @@ describe('handlePullRequest', () => {
 
     const spy = jest.spyOn(core, 'info')
 
-    context.payload.pull_request.draft = true
+    context.payload.pull_request!.draft = true
 
     const client = github.getOctokit('token')
     const config = {
@@ -158,8 +158,8 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     expect(addAssigneesSpy).not.toBeCalled()
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(3)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(3)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /reviewer/
     )
   })
@@ -194,8 +194,10 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(1)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch('pr-creator')
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(1)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(
+      'pr-creator'
+    )
     expect(requestReviewersSpy).not.toBeCalled()
   })
 
@@ -259,9 +261,9 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(3)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/reviewer/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toEqual(
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(3)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/reviewer/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toEqual(
       expect.arrayContaining(['reviewer1', 'reviewer2', 'reviewer3'])
     )
     expect(requestReviewersSpy).not.toBeCalled()
@@ -300,8 +302,8 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(1)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toEqual(
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(1)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toEqual(
       expect.arrayContaining(['assignee1'])
     )
     expect(requestReviewersSpy).not.toBeCalled()
@@ -339,10 +341,10 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(2)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/assignee/)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(2)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(2)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/assignee/)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(2)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /reviewer/
     )
   })
@@ -414,8 +416,8 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(spy.mock.calls[0][0].assignees).toHaveLength(2)
-    expect(spy.mock.calls[0][0].assignees[0]).toMatch(/maintainer/)
+    expect(spy.mock.calls[0][0]?.assignees).toHaveLength(2)
+    expect(spy.mock.calls[0][0]?.assignees![0]).toMatch(/maintainer/)
   })
 
   test('adds reviewers to pull requests if throws error to add assignees', async () => {
@@ -448,8 +450,8 @@ describe('handlePullRequest', () => {
 
     await handler.handlePullRequest(client, context, config)
 
-    expect(spy.mock.calls[0][0].reviewers).toHaveLength(2)
-    expect(spy.mock.calls[0][0].reviewers[0]).toMatch(/reviewer/)
+    expect(spy.mock.calls[0][0]?.reviewers).toHaveLength(2)
+    expect(spy.mock.calls[0][0]?.reviewers![0]).toMatch(/reviewer/)
   })
 
   /*
@@ -542,8 +544,8 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(1)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(1)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /reviewer/
     )
     expect(addAssigneesSpy).not.toBeCalled()
@@ -587,9 +589,13 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(2)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(/group1/)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[1]).toMatch(/group2/)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(2)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
+      /group1/
+    )
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(
+      /group2/
+    )
     expect(addAssigneesSpy).not.toBeCalled()
   })
 
@@ -631,10 +637,14 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(3)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(/group1/)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[1]).toMatch(/group1/)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[2]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(3)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
+      /group1/
+    )
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(
+      /group1/
+    )
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![2]).toMatch(
       /group2-user1/
     )
     expect(addAssigneesSpy).not.toBeCalled()
@@ -681,10 +691,10 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(3)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/group1/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[1]).toMatch(/group2/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[2]).toMatch(/group3/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(3)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/group1/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![1]).toMatch(/group2/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![2]).toMatch(/group3/)
     expect(requestReviewersSpy).not.toBeCalled()
   })
 
@@ -728,10 +738,10 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(3)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/group1/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[1]).toMatch(/group2/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[2]).toMatch(/group3/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(3)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/group1/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![1]).toMatch(/group2/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![2]).toMatch(/group3/)
     expect(requestReviewersSpy).not.toBeCalled()
   })
 
@@ -775,10 +785,10 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(3)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/group1/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[1]).toMatch(/group2/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[2]).toMatch(/group3/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(3)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/group1/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![1]).toMatch(/group2/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![2]).toMatch(/group3/)
     expect(requestReviewersSpy).not.toBeCalled()
   })
 
@@ -823,16 +833,16 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(3)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/group1/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[1]).toMatch(/group2/)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[2]).toMatch(/group3/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(3)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/group1/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![1]).toMatch(/group2/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![2]).toMatch(/group3/)
 
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(2)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(2)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /reviewer/
     )
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[1]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(
       /reviewer/
     )
   })
@@ -878,17 +888,17 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     // THEN
-    expect(addAssigneesSpy.mock.calls[0][0].assignees).toHaveLength(1)
-    expect(addAssigneesSpy.mock.calls[0][0].assignees[0]).toMatch(/assignee/)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(1)
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(/assignee/)
 
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(5)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(5)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /group1-reviewer/
     )
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[2]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![2]).toMatch(
       /group2-reviewer/
     )
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[3]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![3]).toMatch(
       /group3-reviewer/
     )
   })
@@ -901,7 +911,7 @@ describe('handlePullRequest', () => {
       filterLabels: { include: ['test_label'] },
     } as any
 
-    context.payload.pull_request.labels = [{ name: 'some_label' }]
+    context.payload.pull_request!.labels = [{ name: 'some_label' }]
 
     await handler.handlePullRequest(client, context, config)
 
@@ -918,7 +928,7 @@ describe('handlePullRequest', () => {
       filterLabels: { include: ['test_label'], exclude: ['wip'] },
     } as any
 
-    context.payload.pull_request.labels = [
+    context.payload.pull_request!.labels = [
       { name: 'test_label' },
       { name: 'wip' },
     ]
@@ -951,7 +961,7 @@ describe('handlePullRequest', () => {
       reviewers: ['reviewer1', 'reviewer2', 'reviewer3', 'pr-creator'],
     } as any
 
-    context.payload.pull_request.labels = [{ name: 'some_label' }]
+    context.payload.pull_request!.labels = [{ name: 'some_label' }]
 
     const client = github.getOctokit('token')
 
@@ -964,8 +974,8 @@ describe('handlePullRequest', () => {
     await handler.handlePullRequest(client, context, config)
 
     expect(addAssigneesSpy).not.toBeCalled()
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers).toHaveLength(3)
-    expect(requestReviewersSpy.mock.calls[0][0].reviewers[0]).toMatch(
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(3)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
       /reviewer/
     )
   })
