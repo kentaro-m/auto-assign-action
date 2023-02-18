@@ -8,9 +8,7 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest'
   },
   verbose: true,
-  globals: {
-    'ts-jest': {
-      tsconfig: './__tests__/tsconfig.jest.json'
-    }
-  }
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest'
+  },
 }

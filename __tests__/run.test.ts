@@ -60,6 +60,8 @@ describe.only('run', () => {
           return 'token'
         case 'configuration-path':
           return '.github/auto_assign.yml'
+        default:
+          return ''
       }
     })
 
