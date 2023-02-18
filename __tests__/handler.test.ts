@@ -195,7 +195,9 @@ describe('handlePullRequest', () => {
 
     // THEN
     expect(addAssigneesSpy.mock.calls[0][0]?.assignees).toHaveLength(1)
-    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch('pr-creator')
+    expect(addAssigneesSpy.mock.calls[0][0]?.assignees![0]).toMatch(
+      'pr-creator'
+    )
     expect(requestReviewersSpy).not.toBeCalled()
   })
 
@@ -588,8 +590,12 @@ describe('handlePullRequest', () => {
 
     // THEN
     expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(2)
-    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(/group1/)
-    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(/group2/)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
+      /group1/
+    )
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(
+      /group2/
+    )
     expect(addAssigneesSpy).not.toBeCalled()
   })
 
@@ -632,8 +638,12 @@ describe('handlePullRequest', () => {
 
     // THEN
     expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(3)
-    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(/group1/)
-    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(/group1/)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
+      /group1/
+    )
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![1]).toMatch(
+      /group1/
+    )
     expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![2]).toMatch(
       /group2-user1/
     )
