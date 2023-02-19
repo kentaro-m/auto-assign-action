@@ -54,7 +54,7 @@ describe.only('run', () => {
   })
 
   test('succeeds the process', async () => {
-    coreMocked.getInput.mockImplementation(name => {
+    coreMocked.getInput.mockImplementation((name) => {
       switch (name) {
         case 'repo-token':
           return 'token'

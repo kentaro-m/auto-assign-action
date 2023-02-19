@@ -38,6 +38,6 @@ export class PullRequest {
       return false
     }
     const { labels: pullRequestLabels = [] } = this.context.payload.pull_request
-    return pullRequestLabels.some(label => labels.includes(label.name))
+    return pullRequestLabels.some((label) => labels.includes(label.name))
   }
 }

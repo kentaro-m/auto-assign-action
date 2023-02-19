@@ -10,7 +10,7 @@ describe('handlePullRequest', () => {
   let context: Context
 
   beforeEach(async () => {
-    context = ({
+    context = {
       eventName: '',
       workflow: '',
       action: '',
@@ -44,7 +44,7 @@ describe('handlePullRequest', () => {
       },
       sha: '',
       ref: '',
-    } as unknown) as Context
+    } as unknown as Context
   })
 
   test('responds with an error if the webhook payload is not exist', async () => {
