@@ -1,4 +1,4 @@
-import { mocked } from 'ts-jest/utils'
+import { mocked } from 'jest-mock'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { run } from '../src/run'
@@ -54,12 +54,14 @@ describe.only('run', () => {
   })
 
   test('succeeds the process', async () => {
-    coreMocked.getInput.mockImplementation(name => {
+    coreMocked.getInput.mockImplementation((name) => {
       switch (name) {
         case 'repo-token':
           return 'token'
         case 'configuration-path':
           return '.github/auto_assign.yml'
+        default:
+          return ''
       }
     })
 

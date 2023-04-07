@@ -1,19 +1,19 @@
-import * as github from '@actions/github'
 import * as core from '@actions/core'
 import { Context } from '@actions/github/lib/context'
+import { Client } from './types'
 
 export class PullRequest {
-  private client: github.GitHub
+  private client: Client
   private context: Context
 
-  constructor(client: github.GitHub, context: Context) {
+  constructor(client: Client, context: Context) {
     this.client = client
     this.context = context
   }
 
   async addReviewers(reviewers: string[]): Promise<void> {
     const { owner, repo, number: pull_number } = this.context.issue
-    const result = await this.client.pulls.createReviewRequest({
+    const result = await this.client.rest.pulls.requestReviewers({
       owner,
       repo,
       pull_number,
@@ -36,7 +36,7 @@ export class PullRequest {
 
   async addAssignees(assignees: string[]): Promise<void> {
     const { owner, repo, number: issue_number } = this.context.issue
-    const result = await this.client.issues.addAssignees({
+    const result = await this.client.rest.issues.addAssignees({
       owner,
       repo,
       issue_number,
@@ -50,6 +50,6 @@ export class PullRequest {
       return false
     }
     const { labels: pullRequestLabels = [] } = this.context.payload.pull_request
-    return pullRequestLabels.some(label => labels.includes(label.name))
+    return pullRequestLabels.some((label) => labels.includes(label.name))
   }
 }

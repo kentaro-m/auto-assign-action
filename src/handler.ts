@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import { Context } from '@actions/github/lib/context'
 import * as utils from './utils'
 import { PullRequest } from './pull_request'
+import { Client } from './types'
 import { PullRequestEvent } from '@octokit/webhooks-types'
 
 export interface Config {
@@ -26,7 +26,7 @@ export interface Config {
 }
 
 export async function handlePullRequest(
-  client: github.GitHub,
+  client: Client,
   context: Context,
   config: Config
 ) {
