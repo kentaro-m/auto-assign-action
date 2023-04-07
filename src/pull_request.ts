@@ -24,7 +24,7 @@ export class PullRequest {
 
   async addTeamReviewers(team_reviewers: string[]): Promise<void> {
     const { owner, repo, number: pull_number } = this.context.issue
-    const result = await this.client.pulls.createReviewRequest({
+    const result = await this.client.rest.pulls.requestReviewers({
       owner,
       repo,
       pull_number,
