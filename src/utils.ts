@@ -22,6 +22,34 @@ export function chooseReviewers(owner: string, config: Config): string[] {
   return chosenReviewers
 }
 
+export function chooseTeamReviewers(owner: string, config: Config): string[] {
+  const {
+    useTeamReviewGroups,
+    teamReviewGroups,
+    numberOfTeamReviewers,
+    teamReviewers,
+  } = config
+  let chosenTeamReviewers: string[] = []
+  const useGroups: boolean =
+    useTeamReviewGroups && Object.keys(teamReviewGroups).length > 0
+
+  if (useGroups) {
+    chosenTeamReviewers = chooseTeamsFromGroups(
+      owner,
+      teamReviewGroups,
+      numberOfTeamReviewers
+    )
+  } else {
+    chosenTeamReviewers = chooseTeams(
+      teamReviewers,
+      numberOfTeamReviewers,
+      owner
+    )
+  }
+
+  return chosenTeamReviewers
+}
+
 export function chooseAssignees(owner: string, config: Config): string[] {
   const {
     useAssigneeGroups,
@@ -79,6 +107,23 @@ export function chooseUsers(
   return _.sampleSize(filteredCandidates, desiredNumber)
 }
 
+export function chooseTeams(
+  candidates: string[],
+  desiredNumber: number,
+  filterTeam: string = ''
+): string[] {
+  const filteredCandidates = candidates.filter((reviewer: string): boolean => {
+    return reviewer.toLowerCase() !== filterTeam.toLowerCase()
+  })
+
+  // all-assign
+  if (desiredNumber === 0) {
+    return filteredCandidates
+  }
+
+  return _.sampleSize(filteredCandidates, desiredNumber)
+}
+
 export function includesSkipKeywords(
   title: string,
   skipKeywords: string[]
@@ -102,6 +147,18 @@ export function chooseUsersFromGroups(
     users = users.concat(chooseUsers(groups[group], desiredNumber, owner))
   }
   return users
+}
+
+export function chooseTeamsFromGroups(
+  owner: string,
+  groups: { [key: string]: string[] } | undefined,
+  desiredNumber: number
+): string[] {
+  let teams: string[] = []
+  for (const group in groups) {
+    teams = teams.concat(chooseUsers(groups[group], desiredNumber, owner))
+  }
+  return teams
 }
 
 export async function fetchConfigurationFile(client: Client, options) {
