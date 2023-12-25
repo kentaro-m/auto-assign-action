@@ -19,7 +19,19 @@ export async function run() {
       ref: sha,
     })
 
-    await handler.handlePullRequest(client, github.context, config)
+    const output = await handler.handlePullRequest(
+      client,
+      github.context,
+      config
+    )
+
+    if (output) {
+      const reviewers = utils.toMentions(output.reviewers)
+      const assignees = utils.toMentions(output.assignees)
+
+      core.setOutput('reviewers', reviewers)
+      core.setOutput('assignees', assignees)
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)

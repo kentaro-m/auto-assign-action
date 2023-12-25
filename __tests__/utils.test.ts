@@ -3,6 +3,7 @@ import {
   chooseUsersFromGroups,
   includesSkipKeywords,
   fetchConfigurationFile,
+  toMentions,
 } from '../src/utils'
 import * as github from '@actions/github'
 
@@ -240,5 +241,17 @@ describe('fetchConfigurationFile', () => {
         ref: 'sha',
       })
     ).rejects.toThrow(/the configuration file is not found/)
+  })
+})
+
+describe('toMentions', () => {
+  test('returns a mention string', () => {
+    const usernames = ['foo', 'bar']
+
+    expect(toMentions(usernames)).toEqual('@foo, @bar')
+  })
+
+  test('returns a empty string if the given list is empty', () => {
+    expect(toMentions([])).toEqual('')
   })
 })

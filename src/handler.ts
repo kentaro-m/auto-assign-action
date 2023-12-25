@@ -24,11 +24,16 @@ export interface Config {
   runOnDraft?: boolean
 }
 
+export interface Output {
+  reviewers: string[]
+  assignees: string[]
+}
+
 export async function handlePullRequest(
   client: Client,
   context: Context,
   config: Config
-) {
+): Promise<Output | void> {
   if (!context.payload.pull_request) {
     throw new Error('the webhook payload is not exist')
   }
@@ -97,9 +102,12 @@ export async function handlePullRequest(
     }
   }
 
+  let reviewers: string[] = []
+  let assignees: string[] = []
+
   if (addReviewers) {
     try {
-      const reviewers = utils.chooseReviewers(owner, config)
+      reviewers = utils.chooseReviewers(owner, config)
 
       if (reviewers.length > 0) {
         await pr.addReviewers(reviewers)
@@ -114,7 +122,7 @@ export async function handlePullRequest(
 
   if (addAssignees) {
     try {
-      const assignees = utils.chooseAssignees(owner, config)
+      assignees = utils.chooseAssignees(owner, config)
 
       if (assignees.length > 0) {
         await pr.addAssignees(assignees)
@@ -125,5 +133,10 @@ export async function handlePullRequest(
         core.warning(error.message)
       }
     }
+  }
+
+  return {
+    reviewers,
+    assignees,
   }
 }
