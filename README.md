@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This is a fork of https://github.com/kentaro-m/auto-assign-action to allow choosing user groups conditionally
+
 # Auto Assign Action
 
 An action which adds reviewers to the pull request when the pull request is opened.
@@ -16,14 +19,14 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v2.0.0
+      - uses: arushs/auto-assign-action@v1.0.0
         with:
           configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
 ```
 
 Change event that triggers a workflow to the `pull_request_target` if you want to enable the auto-assign action when opening pull requests from fork repositories or bots like Dependabot.
 
-Using dangerous misuse of the `pull_request_target` event can be a security risk, so make sure you understand pros and cons before using it. 
+Using dangerous misuse of the `pull_request_target` event can be a security risk, so make sure you understand pros and cons before using it.
 
 See below for details:
 
