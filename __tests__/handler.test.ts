@@ -599,6 +599,52 @@ describe('handlePullRequest', () => {
     expect(addAssigneesSpy).not.toBeCalled()
   })
 
+  test('adds reviewers to pull request from two different groups if review groups are enabled and user is in group', async () => {
+    // MOCKS
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        pulls: {
+          requestReviewers: async () => {},
+        },
+        issues: {
+          addAssignees: async () => {},
+        },
+      },
+    }))
+
+    const client = github.getOctokit('token')
+
+    const requestReviewersSpy = jest.spyOn(
+      client.rest.pulls,
+      'requestReviewers'
+    )
+
+    const addAssigneesSpy = jest.spyOn(client.rest.issues, 'addAssignees')
+
+    // GIVEN
+    const config = {
+      addAssignees: false,
+      addReviewers: true,
+      useReviewGroups: true,
+      numberOfReviewers: 1,
+      reviewGroups: {
+        groupA: ['pr-creator', 'group1-user1', 'group1-user2', 'group1-user3'],
+        groupB: ['group2-user1', 'group2-user2', 'group2-user3'],
+      },
+      chooseOnlyUserGroups: true,
+    } as any
+
+    // WHEN
+    await handler.handlePullRequest(client, context, config)
+
+    // THEN
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(1)
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers![0]).toMatch(
+      /group1/
+    )
+    expect(addAssigneesSpy).not.toBeCalled()
+  })
+
   test('adds all reviewers from a group that has less members than the number of reviews requested', async () => {
     // MOCKS
     ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
