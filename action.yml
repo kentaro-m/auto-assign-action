@@ -1,4 +1,4 @@
-name: 'Auto Assign Action'
+name: 'Auto Assign Reviewers'
 description: 'Add reviewers to pull requests when pull requests are opened.'
 author: 'Arush Shankar'
 inputs:
