@@ -162,6 +162,18 @@ The action will only run for non-draft PRs. If you want to run for all PRs, you 
 runOnDraft: true
 ```
 
+### Don't assign when an assignee is already present
+By default, the assignee gets overwritten every time the job is executed. You can add a check to skip the job when an assignee is already present:
+
+```yaml
+jobs:
+  add-reviews:
+    if: github.event.pull_request.requested_reviewers.*.name == ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kentaro-m/auto-assign-action@v1.1.0
+```
+
 ## :memo: Licence
 
 MIT
