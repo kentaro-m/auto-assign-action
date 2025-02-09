@@ -22,6 +22,7 @@ export interface Config {
   reviewGroups: { [key: string]: string[] }
   assigneeGroups: { [key: string]: string[] }
   runOnDraft?: boolean
+  chooseOnlyUserGroups?: boolean
 }
 
 export async function handlePullRequest(
