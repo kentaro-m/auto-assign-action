@@ -4,7 +4,13 @@ import { Config } from './handler'
 import { Client } from './types'
 
 export function chooseReviewers(owner: string, config: Config): string[] {
-  const { useReviewGroups, reviewGroups, numberOfReviewers, reviewers } = config
+  const {
+    useReviewGroups,
+    reviewGroups,
+    numberOfReviewers,
+    reviewers,
+    chooseOnlyUserGroups = false,
+  } = config
   let chosenReviewers: string[] = []
   const useGroups: boolean =
     useReviewGroups && Object.keys(reviewGroups).length > 0
@@ -13,7 +19,8 @@ export function chooseReviewers(owner: string, config: Config): string[] {
     chosenReviewers = chooseUsersFromGroups(
       owner,
       reviewGroups,
-      numberOfReviewers
+      numberOfReviewers,
+      chooseOnlyUserGroups
     )
   } else {
     chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
@@ -95,11 +102,17 @@ export function includesSkipKeywords(
 export function chooseUsersFromGroups(
   owner: string,
   groups: { [key: string]: string[] } | undefined,
-  desiredNumber: number
+  desiredNumber: number,
+  chooseOnlyUserGroups: boolean = false
 ): string[] {
   let users: string[] = []
   for (const group in groups) {
-    users = users.concat(chooseUsers(groups[group], desiredNumber, owner))
+    if (
+      !chooseOnlyUserGroups ||
+      (chooseOnlyUserGroups && groups[group].includes(owner))
+    ) {
+      users = users.concat(chooseUsers(groups[group], desiredNumber, owner))
+    }
   }
   return users
 }
