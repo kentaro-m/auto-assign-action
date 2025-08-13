@@ -2,6 +2,7 @@ import {
   chooseUsers,
   chooseUsersFromGroups,
   chooseTeamReviewers,
+  chooseReviewers,
   includesSkipKeywords,
   fetchConfigurationFile,
 } from '../src/utils'
@@ -315,5 +316,78 @@ describe('chooseTeamReviewers', () => {
     const list = chooseTeamReviewers(owner, config)
 
     expect(list.length).toEqual(0)
+  })
+
+  test('handles undefined teamReviewGroups gracefully', () => {
+    const owner = 'pr-creator'
+    const config = {
+      numberOfTeamReviewers: 1,
+      useTeamReviewGroups: true,
+      teamReviewGroups: undefined,
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list.length).toEqual(0)
+  })
+})
+
+describe('chooseUsers - undefined handling', () => {
+  test('returns empty array when candidates is undefined', () => {
+    const list = chooseUsers(undefined as any, 0, 'pr-creator')
+    expect(list).toEqual([])
+  })
+
+  test('returns empty array when candidates is null', () => {
+    const list = chooseUsers(null as any, 0, 'pr-creator')
+    expect(list).toEqual([])
+  })
+
+  test('returns empty array when candidates is not an array', () => {
+    const list = chooseUsers('not-an-array' as any, 0, 'pr-creator')
+    expect(list).toEqual([])
+  })
+})
+
+describe('chooseUsersFromGroups - undefined handling', () => {
+  test('returns empty array when groups is undefined', () => {
+    const list = chooseUsersFromGroups('owner', undefined, 1)
+    expect(list).toEqual([])
+  })
+
+  test('returns empty array when groups is null', () => {
+    const list = chooseUsersFromGroups('owner', null as any, 1)
+    expect(list).toEqual([])
+  })
+})
+
+describe('chooseReviewers - undefined handling', () => {
+  test('handles undefined reviewers gracefully', () => {
+    const owner = 'pr-creator'
+    const config = {
+      numberOfReviewers: 0,
+      useReviewGroups: false,
+      reviewGroups: {},
+      reviewers: undefined,
+    } as any
+
+    const list = chooseReviewers(owner, config)
+
+    expect(list.length).toEqual(0)
+  })
+
+  test('handles undefined reviewGroups gracefully', () => {
+    const owner = 'pr-creator'
+    const config = {
+      numberOfReviewers: 1,
+      useReviewGroups: true,
+      reviewGroups: undefined,
+      reviewers: ['reviewer1'],
+    } as any
+
+    const list = chooseReviewers(owner, config)
+
+    expect(list.length).toEqual(1)
+    expect(list[0]).toEqual('reviewer1')
   })
 })
