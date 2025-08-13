@@ -979,4 +979,193 @@ describe('handlePullRequest', () => {
       /reviewer/
     )
   })
+
+  test('adds team reviewers to pull requests if the configuration is enabled', async () => {
+    // MOCKS
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        pulls: {
+          requestReviewers: async () => {},
+        },
+        issues: {
+          addAssignees: async () => {},
+        },
+      },
+    }))
+
+    const client = github.getOctokit('token')
+
+    const requestReviewersSpy = jest.spyOn(
+      client.rest.pulls,
+      'requestReviewers'
+    )
+
+    // GIVEN
+    const config = {
+      addReviewers: true,
+      addAssignees: false,
+      numberOfReviewers: 0,
+      numberOfTeamReviewers: 0,
+      numberOfAssignees: 0,
+      reviewers: [],
+      teamReviewers: ['team1', 'team2', 'team3'],
+      assignees: [],
+      skipKeywords: [],
+      useReviewGroups: false,
+      useAssigneeGroups: false,
+      useTeamReviewGroups: false,
+      reviewGroups: {},
+      teamReviewGroups: {},
+      assigneeGroups: {},
+    }
+
+    // WHEN
+    await handler.handlePullRequest(client, context, config)
+
+    // THEN
+    expect(requestReviewersSpy).toHaveBeenCalled()
+    expect(requestReviewersSpy.mock.calls[0][0]?.team_reviewers).toHaveLength(3)
+    expect(requestReviewersSpy.mock.calls[0][0]?.team_reviewers![0]).toMatch(
+      /team/
+    )
+  })
+
+  test('adds both individual and team reviewers to pull requests', async () => {
+    // MOCKS
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        pulls: {
+          requestReviewers: async () => {},
+        },
+        issues: {
+          addAssignees: async () => {},
+        },
+      },
+    }))
+
+    const client = github.getOctokit('token')
+
+    const requestReviewersSpy = jest.spyOn(
+      client.rest.pulls,
+      'requestReviewers'
+    )
+
+    // GIVEN
+    const config = {
+      addReviewers: true,
+      addAssignees: false,
+      numberOfReviewers: 1,
+      numberOfTeamReviewers: 1,
+      numberOfAssignees: 0,
+      reviewers: ['reviewer1', 'reviewer2'],
+      teamReviewers: ['team1', 'team2'],
+      assignees: [],
+      skipKeywords: [],
+      useReviewGroups: false,
+      useAssigneeGroups: false,
+      useTeamReviewGroups: false,
+      reviewGroups: {},
+      teamReviewGroups: {},
+      assigneeGroups: {},
+    }
+
+    // WHEN
+    await handler.handlePullRequest(client, context, config)
+
+    // THEN
+    expect(requestReviewersSpy).toHaveBeenCalled()
+    expect(requestReviewersSpy.mock.calls[0][0]?.reviewers).toHaveLength(1)
+    expect(requestReviewersSpy.mock.calls[0][0]?.team_reviewers).toHaveLength(1)
+  })
+
+  test('uses team review groups when enabled', async () => {
+    // MOCKS
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        pulls: {
+          requestReviewers: async () => {},
+        },
+        issues: {
+          addAssignees: async () => {},
+        },
+      },
+    }))
+
+    const client = github.getOctokit('token')
+
+    const requestReviewersSpy = jest.spyOn(
+      client.rest.pulls,
+      'requestReviewers'
+    )
+
+    // GIVEN
+    const config = {
+      addReviewers: true,
+      addAssignees: false,
+      numberOfReviewers: 0,
+      numberOfTeamReviewers: 1,
+      numberOfAssignees: 0,
+      reviewers: [],
+      teamReviewers: [],
+      assignees: [],
+      skipKeywords: [],
+      useReviewGroups: false,
+      useAssigneeGroups: false,
+      useTeamReviewGroups: true,
+      reviewGroups: {},
+      teamReviewGroups: {
+        frontend: ['frontend-team'],
+        backend: ['backend-team'],
+      },
+      assigneeGroups: {},
+    }
+
+    // WHEN
+    await handler.handlePullRequest(client, context, config)
+
+    // THEN
+    expect(requestReviewersSpy).toHaveBeenCalled()
+    expect(requestReviewersSpy.mock.calls[0][0]?.team_reviewers).toHaveLength(2)
+  })
+
+  test('throws error when useTeamReviewGroups is true but teamReviewGroups is not set', async () => {
+    // MOCKS
+    ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+      rest: {
+        pulls: {
+          requestReviewers: async () => {},
+        },
+        issues: {
+          addAssignees: async () => {},
+        },
+      },
+    }))
+
+    const client = github.getOctokit('token')
+
+    // GIVEN
+    const config = {
+      addReviewers: true,
+      addAssignees: false,
+      numberOfReviewers: 0,
+      numberOfTeamReviewers: 1,
+      numberOfAssignees: 0,
+      reviewers: [],
+      teamReviewers: [],
+      assignees: [],
+      skipKeywords: [],
+      useReviewGroups: false,
+      useAssigneeGroups: false,
+      useTeamReviewGroups: true,
+      reviewGroups: {},
+      assigneeGroups: {},
+    } as any
+
+    // WHEN & THEN
+    await expect(
+      handler.handlePullRequest(client, context, config)
+    ).rejects.toThrowError(
+      "Error in configuration file to do with using team review groups. Expected 'teamReviewGroups' variable to be set because the variable 'useTeamReviewGroups' = true."
+    )
+  })
 })

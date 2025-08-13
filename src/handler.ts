@@ -9,6 +9,7 @@ export interface Config {
   addReviewers: boolean
   addAssignees: boolean | string
   reviewers: string[]
+  teamReviewers: string[]
   assignees: string[]
   filterLabels?: {
     include?: string[]
@@ -16,10 +17,13 @@ export interface Config {
   }
   numberOfAssignees: number
   numberOfReviewers: number
+  numberOfTeamReviewers: number
   skipKeywords: string[]
   useReviewGroups: boolean
   useAssigneeGroups: boolean
+  useTeamReviewGroups: boolean
   reviewGroups: { [key: string]: string[] }
+  teamReviewGroups: { [key: string]: string[] }
   assigneeGroups: { [key: string]: string[] }
   runOnDraft?: boolean
 }
@@ -39,7 +43,9 @@ export async function handlePullRequest(
     skipKeywords,
     useReviewGroups,
     useAssigneeGroups,
+    useTeamReviewGroups,
     reviewGroups,
+    teamReviewGroups,
     assigneeGroups,
     addReviewers,
     addAssignees,
@@ -63,6 +69,12 @@ export async function handlePullRequest(
   if (useReviewGroups && !reviewGroups) {
     throw new Error(
       "Error in configuration file to do with using review groups. Expected 'reviewGroups' variable to be set because the variable 'useReviewGroups' = true."
+    )
+  }
+
+  if (useTeamReviewGroups && !teamReviewGroups) {
+    throw new Error(
+      "Error in configuration file to do with using team review groups. Expected 'teamReviewGroups' variable to be set because the variable 'useTeamReviewGroups' = true."
     )
   }
 
@@ -100,10 +112,18 @@ export async function handlePullRequest(
   if (addReviewers) {
     try {
       const reviewers = utils.chooseReviewers(owner, config)
+      const teamReviewers = utils.chooseTeamReviewers(owner, config)
 
-      if (reviewers.length > 0) {
-        await pr.addReviewers(reviewers)
-        core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
+      if (reviewers.length > 0 || teamReviewers.length > 0) {
+        await pr.addReviewers(reviewers, teamReviewers)
+        if (reviewers.length > 0) {
+          core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
+        }
+        if (teamReviewers.length > 0) {
+          core.info(
+            `Added team reviewers to PR #${number}: ${teamReviewers.join(', ')}`
+          )
+        }
       }
     } catch (error) {
       if (error instanceof Error) {

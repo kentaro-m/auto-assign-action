@@ -1,6 +1,7 @@
 import {
   chooseUsers,
   chooseUsersFromGroups,
+  chooseTeamReviewers,
   includesSkipKeywords,
   fetchConfigurationFile,
 } from '../src/utils'
@@ -240,5 +241,79 @@ describe('fetchConfigurationFile', () => {
         ref: 'sha',
       })
     ).rejects.toThrow(/the configuration file is not found/)
+  })
+})
+
+describe('chooseTeamReviewers', () => {
+  test('returns team reviewers without PR creator', () => {
+    const owner = 'pr-creator'
+    const config = {
+      teamReviewers: ['team1', 'team2', 'team3'],
+      numberOfTeamReviewers: 0,
+      useTeamReviewGroups: false,
+      teamReviewGroups: {},
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list).toEqual(['team1', 'team2', 'team3'])
+  })
+
+  test('returns limited number of team reviewers', () => {
+    const owner = 'pr-creator'
+    const config = {
+      teamReviewers: ['team1', 'team2', 'team3'],
+      numberOfTeamReviewers: 2,
+      useTeamReviewGroups: false,
+      teamReviewGroups: {},
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list.length).toEqual(2)
+  })
+
+  test('returns empty array when no team reviewers configured', () => {
+    const owner = 'pr-creator'
+    const config = {
+      teamReviewers: [],
+      numberOfTeamReviewers: 0,
+      useTeamReviewGroups: false,
+      teamReviewGroups: {},
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list.length).toEqual(0)
+  })
+
+  test('returns team reviewers from groups when useTeamReviewGroups is true', () => {
+    const owner = 'pr-creator'
+    const config = {
+      teamReviewers: [],
+      numberOfTeamReviewers: 1,
+      useTeamReviewGroups: true,
+      teamReviewGroups: {
+        frontend: ['frontend-team'],
+        backend: ['backend-team'],
+      },
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list.length).toEqual(2)
+  })
+
+  test('handles undefined teamReviewers gracefully', () => {
+    const owner = 'pr-creator'
+    const config = {
+      numberOfTeamReviewers: 0,
+      useTeamReviewGroups: false,
+      teamReviewGroups: {},
+    } as any
+
+    const list = chooseTeamReviewers(owner, config)
+
+    expect(list.length).toEqual(0)
   })
 })
