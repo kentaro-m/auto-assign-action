@@ -40,6 +40,48 @@ name: 'Auto Assign'
  jobs:
 ```
 
+## :arrow_down: Outputs
+
+The action provides the following outputs that can be used in subsequent workflow steps:
+
+| Output | Description | Example |
+|--------|-------------|---------|
+| `reviewers` | Comma-separated list of assigned reviewers | `user1,user2` |
+| `assignees` | Comma-separated list of assigned assignees | `user3,user4` |
+
+### Example: Send Slack notification with assigned reviewers
+
+```yml
+name: 'Auto Assign'
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  add-reviews:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kentaro-m/auto-assign-action@v2.0.1
+        id: assign
+
+      - uses: slackapi/slack-github-action@v1
+        if: steps.assign.outputs.reviewers != ''
+        with:
+          payload: |
+            {
+              "text": "PR #${{ github.event.pull_request.number }} needs review",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ github.event.pull_request.html_url }}|PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}>*\nReviewers: ${{ steps.assign.outputs.reviewers }}"
+                  }
+                }
+              ]
+            }
+```
+
 Create a separate configuration file for the auto-assign action (e.g. `.github/auto_assign.yml`).
 
 ### Single Reviewers List
