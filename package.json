@@ -1,6 +1,6 @@
 {
   "name": "auto-assign-action",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Add reviewers to pull requests when pull requests are opened.",
   "repository": {
     "type": "git",
