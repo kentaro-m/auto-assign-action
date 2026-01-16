@@ -979,4 +979,213 @@ describe('handlePullRequest', () => {
       /reviewer/
     )
   })
+
+  describe('outputs', () => {
+    test('sets empty outputs when PR is skipped due to skip keywords', async () => {
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      context.payload.pull_request!.title = 'wip test'
+
+      const client = github.getOctokit('token')
+      const config = {
+        addAssignees: true,
+        addReviewers: true,
+        numberOfReviewers: 0,
+        reviewers: ['reviewer1', 'reviewer2', 'reviewer3'],
+        skipKeywords: ['wip'],
+      } as any
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', '')
+    })
+
+    test('sets empty outputs when PR is skipped due to draft status', async () => {
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      context.payload.pull_request!.draft = true
+
+      const client = github.getOctokit('token')
+      const config = {
+        addAssignees: true,
+        addReviewers: true,
+        numberOfReviewers: 0,
+        reviewers: ['reviewer1', 'reviewer2', 'reviewer3'],
+        runOnDraft: false,
+      } as any
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', '')
+    })
+
+    test('sets empty outputs when PR is skipped due to filterLabels.include', async () => {
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const client = github.getOctokit('token')
+      const config = {
+        filterLabels: { include: ['test_label'] },
+      } as any
+
+      context.payload.pull_request!.labels = [{ name: 'some_label' }]
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', '')
+    })
+
+    test('sets empty outputs when PR is skipped due to filterLabels.exclude', async () => {
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const client = github.getOctokit('token')
+      const config = {
+        filterLabels: { include: ['test_label'], exclude: ['wip'] },
+      } as any
+
+      context.payload.pull_request!.labels = [
+        { name: 'test_label' },
+        { name: 'wip' },
+      ]
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', '')
+    })
+
+    test('sets reviewers output when reviewers are added', async () => {
+      // MOCKS
+      ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+        rest: {
+          pulls: {
+            requestReviewers: async () => {},
+          },
+          issues: {
+            addAssignees: async () => {},
+          },
+        },
+      }))
+
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const config = {
+        addAssignees: false,
+        addReviewers: true,
+        numberOfReviewers: 0,
+        reviewers: ['reviewer1', 'reviewer2', 'reviewer3'],
+      } as any
+
+      const client = github.getOctokit('token')
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith(
+        'reviewers',
+        'reviewer1,reviewer2,reviewer3'
+      )
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', '')
+    })
+
+    test('sets assignees output when assignees are added', async () => {
+      // MOCKS
+      ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+        rest: {
+          pulls: {
+            requestReviewers: async () => {},
+          },
+          issues: {
+            addAssignees: async () => {},
+          },
+        },
+      }))
+
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const config = {
+        addAssignees: true,
+        addReviewers: false,
+        assignees: ['assignee1', 'assignee2'],
+        numberOfAssignees: 0,
+        numberOfReviewers: 0,
+      } as any
+
+      const client = github.getOctokit('token')
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith(
+        'assignees',
+        'assignee1,assignee2'
+      )
+    })
+
+    test('sets both reviewers and assignees outputs when both are added', async () => {
+      // MOCKS
+      ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+        rest: {
+          pulls: {
+            requestReviewers: async () => {},
+          },
+          issues: {
+            addAssignees: async () => {},
+          },
+        },
+      }))
+
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const config = {
+        addAssignees: true,
+        addReviewers: true,
+        assignees: ['assignee1', 'assignee2'],
+        reviewers: ['reviewer1', 'reviewer2'],
+        numberOfAssignees: 0,
+        numberOfReviewers: 0,
+      } as any
+
+      const client = github.getOctokit('token')
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith(
+        'reviewers',
+        'reviewer1,reviewer2'
+      )
+      expect(setOutputSpy).toHaveBeenCalledWith(
+        'assignees',
+        'assignee1,assignee2'
+      )
+    })
+
+    test('sets author as assignee output when addAssignees is set to author', async () => {
+      // MOCKS
+      ;(github.getOctokit as jest.Mock).mockImplementation(() => ({
+        rest: {
+          pulls: {
+            requestReviewers: async () => {},
+          },
+          issues: {
+            addAssignees: async () => {},
+          },
+        },
+      }))
+
+      const setOutputSpy = jest.spyOn(core, 'setOutput')
+
+      const config = {
+        addAssignees: 'author',
+      } as any
+
+      const client = github.getOctokit('token')
+
+      await handler.handlePullRequest(client, context, config)
+
+      expect(setOutputSpy).toHaveBeenCalledWith('reviewers', '')
+      expect(setOutputSpy).toHaveBeenCalledWith('assignees', 'pr-creator')
+    })
+  })
 })

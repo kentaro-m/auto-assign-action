@@ -9,6 +9,11 @@ inputs:
   configuration-path:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
+outputs:
+  reviewers:
+    description: 'Comma-separated list of assigned reviewers'
+  assignees:
+    description: 'Comma-separated list of assigned assignees'
 runs:
   using: 'node20'
   main: 'dist/index.js'
