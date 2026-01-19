@@ -16,13 +16,17 @@ export function chooseReviewers(owner: string, config: Config): string[] {
       numberOfReviewers
     )
   } else {
-    chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
+    chosenReviewers = chooseUsers(reviewers, numberOfReviewers, [owner])
   }
 
   return chosenReviewers
 }
 
-export function chooseAssignees(owner: string, config: Config): string[] {
+export function chooseAssignees(
+  owner: string,
+  config: Config,
+  excluded: string[]
+): string[] {
   const {
     useAssigneeGroups,
     assigneeGroups,
@@ -55,7 +59,7 @@ export function chooseAssignees(owner: string, config: Config): string[] {
     chosenAssignees = chooseUsers(
       candidates,
       numberOfAssignees || numberOfReviewers,
-      owner
+      [owner, ...excluded]
     )
   }
 
@@ -65,10 +69,13 @@ export function chooseAssignees(owner: string, config: Config): string[] {
 export function chooseUsers(
   candidates: string[],
   desiredNumber: number,
-  filterUser: string = ''
+  filterUser: string[] = []
 ): string[] {
+  const excludedLower = filterUser.map((user: string): string => {
+    return user.toLowerCase()
+  })
   const filteredCandidates = candidates.filter((reviewer: string): boolean => {
-    return reviewer.toLowerCase() !== filterUser.toLowerCase()
+    return excludedLower.indexOf(reviewer.toLowerCase()) !== -1
   })
 
   // all-assign
@@ -99,7 +106,7 @@ export function chooseUsersFromGroups(
 ): string[] {
   let users: string[] = []
   for (const group in groups) {
-    users = users.concat(chooseUsers(groups[group], desiredNumber, owner))
+    users = users.concat(chooseUsers(groups[group], desiredNumber, [owner]))
   }
   return users
 }
