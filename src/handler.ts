@@ -51,12 +51,16 @@ export async function handlePullRequest(
     core.info(
       'Skips the process to add reviewers/assignees since PR title includes skip-keywords'
     )
+    core.setOutput('reviewers', '')
+    core.setOutput('assignees', '')
     return
   }
   if (!runOnDraft && draft) {
     core.info(
       'Skips the process to add reviewers/assignees since PR type is draft'
     )
+    core.setOutput('reviewers', '')
+    core.setOutput('assignees', '')
     return
   }
 
@@ -82,6 +86,8 @@ export async function handlePullRequest(
         core.info(
           'Skips the process to add reviewers/assignees since PR is not tagged with any of the filterLabels.include'
         )
+        core.setOutput('reviewers', '')
+        core.setOutput('assignees', '')
         return
       }
     }
@@ -92,10 +98,15 @@ export async function handlePullRequest(
         core.info(
           'Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude'
         )
+        core.setOutput('reviewers', '')
+        core.setOutput('assignees', '')
         return
       }
     }
   }
+
+  let addedReviewers: string[] = []
+  let addedAssignees: string[] = []
 
   if (addReviewers) {
     try {
@@ -104,6 +115,7 @@ export async function handlePullRequest(
       if (reviewers.length > 0) {
         await pr.addReviewers(reviewers)
         core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
+        addedReviewers = reviewers
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -119,6 +131,7 @@ export async function handlePullRequest(
       if (assignees.length > 0) {
         await pr.addAssignees(assignees)
         core.info(`Added assignees to PR #${number}: ${assignees.join(', ')}`)
+        addedAssignees = assignees
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -126,4 +139,7 @@ export async function handlePullRequest(
       }
     }
   }
+
+  core.setOutput('reviewers', addedReviewers.join(','))
+  core.setOutput('assignees', addedAssignees.join(','))
 }

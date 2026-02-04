@@ -63,10 +63,14 @@ function handlePullRequest(client, context, config) {
         const { skipKeywords, useReviewGroups, useAssigneeGroups, reviewGroups, assigneeGroups, addReviewers, addAssignees, filterLabels, runOnDraft, } = config;
         if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
             core.info('Skips the process to add reviewers/assignees since PR title includes skip-keywords');
+            core.setOutput('reviewers', '');
+            core.setOutput('assignees', '');
             return;
         }
         if (!runOnDraft && draft) {
             core.info('Skips the process to add reviewers/assignees since PR type is draft');
+            core.setOutput('reviewers', '');
+            core.setOutput('assignees', '');
             return;
         }
         if (useReviewGroups && !reviewGroups) {
@@ -82,6 +86,8 @@ function handlePullRequest(client, context, config) {
                 const hasLabels = pr.hasAnyLabel(filterLabels.include);
                 if (!hasLabels) {
                     core.info('Skips the process to add reviewers/assignees since PR is not tagged with any of the filterLabels.include');
+                    core.setOutput('reviewers', '');
+                    core.setOutput('assignees', '');
                     return;
                 }
             }
@@ -89,16 +95,21 @@ function handlePullRequest(client, context, config) {
                 const hasLabels = pr.hasAnyLabel(filterLabels.exclude);
                 if (hasLabels) {
                     core.info('Skips the process to add reviewers/assignees since PR is tagged with any of the filterLabels.exclude');
+                    core.setOutput('reviewers', '');
+                    core.setOutput('assignees', '');
                     return;
                 }
             }
         }
+        let addedReviewers = [];
+        let addedAssignees = [];
         if (addReviewers) {
             try {
                 const reviewers = utils.chooseReviewers(owner, config);
                 if (reviewers.length > 0) {
                     yield pr.addReviewers(reviewers);
                     core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`);
+                    addedReviewers = reviewers;
                 }
             }
             catch (error) {
@@ -113,6 +124,7 @@ function handlePullRequest(client, context, config) {
                 if (assignees.length > 0) {
                     yield pr.addAssignees(assignees);
                     core.info(`Added assignees to PR #${number}: ${assignees.join(', ')}`);
+                    addedAssignees = assignees;
                 }
             }
             catch (error) {
@@ -121,6 +133,8 @@ function handlePullRequest(client, context, config) {
                 }
             }
         }
+        core.setOutput('reviewers', addedReviewers.join(','));
+        core.setOutput('assignees', addedAssignees.join(','));
     });
 }
 
