@@ -42,7 +42,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json lib/ dist/
+          git add package.json package-lock.json dist/
           git commit -m "chore: release v${{ inputs.version }}"
           git tag v${{ inputs.version }}
           git push origin ${{ inputs.branch }}
