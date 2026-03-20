@@ -25,8 +25,8 @@
   },
   "devDependencies": {
     "@octokit/webhooks-types": "7.6.1",
-    "@types/jest": "29.4.0",
-    "@types/js-yaml": "3.12.1",
+    "@types/jest": "30.0.0",
+    "@types/js-yaml": "4.0.9",
     "@types/lodash": "4.14.141",
     "@types/node": "^24.12.0",
     "@vercel/ncc": "0.38.4",
