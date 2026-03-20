@@ -1,0 +1,15 @@
+name: 'Check dist'
+
+on:
+  pull_request:
+    paths:
+      - 'dist/**'
+
+jobs:
+  check-dist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if dist/ is modified
+        run: |
+          echo "::error::Do not include dist/ changes in pull requests. The dist/ directory is automatically generated during the release process."
+          exit 1
