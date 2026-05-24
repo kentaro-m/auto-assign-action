@@ -128,6 +128,9 @@ useAssigneeGroups: false
 # A list of keywords to be skipped the process that add reviewers if pull requests include it
 # skipKeywords:
 #   - wip
+
+# Set to true to enforce that reviewers and assignees are different
+skipReviewersAsAssignees: false
 ```
 
 ### Assign Author as Assignee
