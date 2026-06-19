@@ -7,7 +7,7 @@ export function chooseReviewers(owner: string, config: Config): string[] {
   const { useReviewGroups, reviewGroups, numberOfReviewers, reviewers } = config
   let chosenReviewers: string[] = []
   const useGroups: boolean =
-    useReviewGroups && Object.keys(reviewGroups).length > 0
+    useReviewGroups && reviewGroups && Object.keys(reviewGroups).length > 0
 
   if (useGroups) {
     chosenReviewers = chooseUsersFromGroups(
@@ -16,10 +16,40 @@ export function chooseReviewers(owner: string, config: Config): string[] {
       numberOfReviewers
     )
   } else {
-    chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
+    chosenReviewers = chooseUsers(reviewers || [], numberOfReviewers, owner)
   }
 
   return chosenReviewers
+}
+
+export function chooseTeamReviewers(owner: string, config: Config): string[] {
+  const {
+    useTeamReviewGroups,
+    teamReviewGroups,
+    numberOfTeamReviewers,
+    teamReviewers,
+  } = config
+  let chosenTeamReviewers: string[] = []
+  const useGroups: boolean =
+    useTeamReviewGroups &&
+    teamReviewGroups &&
+    Object.keys(teamReviewGroups).length > 0
+
+  if (useGroups) {
+    chosenTeamReviewers = chooseUsersFromGroups(
+      owner,
+      teamReviewGroups,
+      numberOfTeamReviewers
+    )
+  } else {
+    chosenTeamReviewers = chooseUsers(
+      teamReviewers || [],
+      numberOfTeamReviewers,
+      owner
+    )
+  }
+
+  return chosenTeamReviewers
 }
 
 export function chooseAssignees(owner: string, config: Config): string[] {
@@ -35,7 +65,9 @@ export function chooseAssignees(owner: string, config: Config): string[] {
   let chosenAssignees: string[] = []
 
   const useGroups: boolean =
-    useAssigneeGroups && Object.keys(assigneeGroups).length > 0
+    useAssigneeGroups &&
+    assigneeGroups &&
+    Object.keys(assigneeGroups).length > 0
 
   if (typeof addAssignees === 'string') {
     if (addAssignees !== 'author') {
@@ -51,7 +83,7 @@ export function chooseAssignees(owner: string, config: Config): string[] {
       numberOfAssignees || numberOfReviewers
     )
   } else {
-    const candidates = assignees ? assignees : reviewers
+    const candidates = assignees ? assignees : reviewers || []
     chosenAssignees = chooseUsers(
       candidates,
       numberOfAssignees || numberOfReviewers,
@@ -67,6 +99,11 @@ export function chooseUsers(
   desiredNumber: number,
   filterUser: string = ''
 ): string[] {
+  // Handle undefined or null candidates
+  if (!candidates || !Array.isArray(candidates)) {
+    return []
+  }
+
   const filteredCandidates = candidates.filter((reviewer: string): boolean => {
     return reviewer.toLowerCase() !== filterUser.toLowerCase()
   })
@@ -97,6 +134,10 @@ export function chooseUsersFromGroups(
   groups: { [key: string]: string[] } | undefined,
   desiredNumber: number
 ): string[] {
+  if (!groups) {
+    return []
+  }
+
   let users: string[] = []
   for (const group in groups) {
     users = users.concat(chooseUsers(groups[group], desiredNumber, owner))
