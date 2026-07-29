@@ -77,4 +77,35 @@ describe.only('run', () => {
 
     expect(mockedHandler.handlePullRequest).toBeCalled()
   })
+
+  test('reads the configuration from the local filesystem when local-config is true', async () => {
+    coreMocked.getInput.mockImplementation((name) => {
+      switch (name) {
+        case 'repo-token':
+          return 'token'
+        case 'configuration-path':
+          return '.github/auto_assign.yml'
+        case 'local-config':
+          return 'true'
+        default:
+          return ''
+      }
+    })
+
+    mockedUtils.readConfigurationFile.mockImplementation(() => ({
+      addAssignees: false,
+      addReviewers: true,
+      reviewers: ['reviewerA', 'reviewerB', 'reviewerC'],
+    }))
+
+    mockedHandler.handlePullRequest.mockImplementation(async () => {})
+
+    await run()
+
+    expect(mockedUtils.readConfigurationFile).toBeCalledWith(
+      '.github/auto_assign.yml'
+    )
+    expect(mockedUtils.fetchConfigurationFile).not.toBeCalled()
+    expect(mockedHandler.handlePullRequest).toBeCalled()
+  })
 })
