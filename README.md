@@ -59,9 +59,19 @@ reviewers:
   - reviewerB
   - reviewerC
 
+# A list of team reviewers to be added to pull requests (GitHub team slug)
+teamReviewers:
+  - teamA
+  - teamB
+
 # A number of reviewers added to the pull request
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 0
+
+# A number of team reviewers added to the pull request
+# Set 0 to add all the team reviewers (default: 0)
+numberOfTeamReviewers: 0
+
 # A list of assignees, overrides reviewers if set
 # assignees:
 #   - assigneeA
@@ -93,6 +103,10 @@ addAssignees: false
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 1
 
+# A number of team reviewers added to the pull request  
+# Set 0 to add all the team reviewers (default: 0)
+numberOfTeamReviewers: 1
+
 # A number of assignees to add to the pull request
 # Set to 0 to add all of the assignees.
 # Uses numberOfReviewers if unset.
@@ -111,6 +125,18 @@ reviewGroups:
     - reviewerD
     - reviewerE
     - reviewerF
+
+# Set to true to add team reviewers from different groups to pull requests
+useTeamReviewGroups: true
+
+# A list of team reviewers, split into different groups, to be added to pull requests (GitHub team slug)
+teamReviewGroups:
+  frontend:
+    - frontend-team
+    - ui-team
+  backend:
+    - backend-team
+    - api-team
 
 # Set to true to add assignees from different groups to pull requests
 useAssigneeGroups: false
