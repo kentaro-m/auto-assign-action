@@ -21,6 +21,7 @@ export interface Config {
   useAssigneeGroups: boolean
   reviewGroups: { [key: string]: string[] }
   assigneeGroups: { [key: string]: string[] }
+  skipReviewersAsAssignees: boolean
   runOnDraft?: boolean
 }
 
@@ -45,6 +46,7 @@ export async function handlePullRequest(
     addAssignees,
     filterLabels,
     runOnDraft,
+    skipReviewersAsAssignees,
   } = config
 
   if (skipKeywords && utils.includesSkipKeywords(title, skipKeywords)) {
@@ -114,7 +116,8 @@ export async function handlePullRequest(
 
   if (addAssignees) {
     try {
-      const assignees = utils.chooseAssignees(owner, config)
+      const excluded = skipReviewersAsAssignees ? config.reviewers : []
+      const assignees = utils.chooseAssignees(owner, config, excluded)
 
       if (assignees.length > 0) {
         await pr.addAssignees(assignees)
