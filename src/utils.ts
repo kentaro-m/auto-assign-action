@@ -1,3 +1,4 @@
+import * as fs from 'fs'
 import _ from 'lodash'
 import * as yaml from 'js-yaml'
 import { Config } from './handler'
@@ -120,6 +121,17 @@ export async function fetchConfigurationFile(client: Client, options) {
   }
 
   const configString = Buffer.from(data.content, 'base64').toString()
+  const config = yaml.safeLoad(configString)
+
+  return config
+}
+
+export function readConfigurationFile(path: string) {
+  if (!fs.existsSync(path)) {
+    throw new Error('the configuration file is not found')
+  }
+
+  const configString = fs.readFileSync(path, 'utf8')
   const config = yaml.safeLoad(configString)
 
   return config
