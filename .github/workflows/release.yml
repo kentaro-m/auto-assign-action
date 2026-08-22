@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -38,24 +39,28 @@ jobs:
       - name: Package
         run: npm run package
 
-      - name: Commit and push
+      - name: Commit to release branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b release/v${{ inputs.version }}
           git add package.json package-lock.json dist/
           git commit -m "chore: release v${{ inputs.version }}"
-          git tag v${{ inputs.version }}
-          git push origin ${{ inputs.branch }}
-          git push origin v${{ inputs.version }}
+          git push origin release/v${{ inputs.version }}
 
-      - name: Create GitHub Release
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: `v${{ inputs.version }}`,
-              name: `v${{ inputs.version }}`,
-              generate_release_notes: true,
-            })
+      - name: Open release pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_URL=$(gh pr create \
+            --title "chore: release v${{ inputs.version }}" \
+            --body "Automated release PR for v${{ inputs.version }}. Tagging and the GitHub Release are created automatically once this is merged." \
+            --base "${{ inputs.branch }}" \
+            --head "release/v${{ inputs.version }}")
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge --auto --merge "${{ steps.pr.outputs.pr_url }}"
