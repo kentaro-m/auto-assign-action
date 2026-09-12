@@ -9,15 +9,18 @@ export async function run() {
     const configPath = core.getInput('configuration-path', {
       required: true,
     })
+    const localConfig = core.getInput('local-config') === 'true'
 
     const client = github.getOctokit(token)
     const { repo, sha } = github.context
-    const config = await utils.fetchConfigurationFile(client, {
-      owner: repo.owner,
-      repo: repo.repo,
-      path: configPath,
-      ref: sha,
-    })
+    const config = localConfig
+      ? utils.readConfigurationFile(configPath)
+      : await utils.fetchConfigurationFile(client, {
+          owner: repo.owner,
+          repo: repo.repo,
+          path: configPath,
+          ref: sha,
+        })
 
     await handler.handlePullRequest(client, github.context, config)
   } catch (error) {

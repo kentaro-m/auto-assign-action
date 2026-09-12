@@ -279,14 +279,17 @@ function run() {
             const configPath = core.getInput('configuration-path', {
                 required: true,
             });
+            const localConfig = core.getInput('local-config') === 'true';
             const client = github.getOctokit(token);
             const { repo, sha } = github.context;
-            const config = yield utils.fetchConfigurationFile(client, {
-                owner: repo.owner,
-                repo: repo.repo,
-                path: configPath,
-                ref: sha,
-            });
+            const config = localConfig
+                ? utils.readConfigurationFile(configPath)
+                : yield utils.fetchConfigurationFile(client, {
+                    owner: repo.owner,
+                    repo: repo.repo,
+                    path: configPath,
+                    ref: sha,
+                });
             yield handler.handlePullRequest(client, github.context, config);
         }
         catch (error) {
@@ -357,6 +360,8 @@ exports.chooseUsers = chooseUsers;
 exports.includesSkipKeywords = includesSkipKeywords;
 exports.chooseUsersFromGroups = chooseUsersFromGroups;
 exports.fetchConfigurationFile = fetchConfigurationFile;
+exports.readConfigurationFile = readConfigurationFile;
+const fs = __importStar(__nccwpck_require__(9896));
 const lodash_1 = __importDefault(__nccwpck_require__(2356));
 const yaml = __importStar(__nccwpck_require__(4281));
 function chooseReviewers(owner, config) {
@@ -432,6 +437,14 @@ function fetchConfigurationFile(client, options) {
         const config = yaml.safeLoad(configString);
         return config;
     });
+}
+function readConfigurationFile(path) {
+    if (!fs.existsSync(path)) {
+        throw new Error('the configuration file is not found');
+    }
+    const configString = fs.readFileSync(path, 'utf8');
+    const config = yaml.safeLoad(configString);
+    return config;
 }
 
 
@@ -7526,6 +7539,7 @@ function State(input, options) {
   this.legacy    = options['legacy']    || false;
   this.json      = options['json']      || false;
   this.listener  = options['listener']  || null;
+  this.maxTotalMergeKeys = typeof options['maxTotalMergeKeys'] === 'number' ? options['maxTotalMergeKeys'] : 10000;
 
   this.implicitTypes = this.schema.compiledImplicit;
   this.typeMap       = this.schema.compiledTypeMap;
@@ -7535,6 +7549,7 @@ function State(input, options) {
   this.line       = 0;
   this.lineStart  = 0;
   this.lineIndent = 0;
+  this.totalMergeKeys = 0;
 
   this.documents = [];
 
@@ -7664,6 +7679,10 @@ function mergeMappings(state, destination, source, overridableKeys) {
 
   for (index = 0, quantity = sourceKeys.length; index < quantity; index += 1) {
     key = sourceKeys[index];
+
+    if (state.maxTotalMergeKeys !== -1 && ++state.totalMergeKeys > state.maxTotalMergeKeys) {
+      throwError(state, 'merge keys exceeded maxTotalMergeKeys (' + state.maxTotalMergeKeys + ')');
+    }
 
     if (!_hasOwnProperty.call(destination, key)) {
       setProperty(destination, key, source[key]);
@@ -10529,7 +10548,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.23';
+  var VERSION = '4.18.1';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -10537,7 +10556,8 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
   /** Error message constants. */
   var CORE_ERROR_TEXT = 'Unsupported core-js use. Try https://npms.io/search?q=ponyfill.',
       FUNC_ERROR_TEXT = 'Expected a function',
-      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`';
+      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`',
+      INVALID_TEMPL_IMPORTS_ERROR_TEXT = 'Invalid `imports` option passed into `_.template`';
 
   /** Used to stand-in for `undefined` hash values. */
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -12269,6 +12289,10 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
      * embedded Ruby (ERB) as well as ES2015 template strings. Change the
      * following template settings to use alternative delimiters.
      *
+     * **Security:** See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md)
+     * — `_.template` is insecure and will be removed in v5.
+     *
      * @static
      * @memberOf _
      * @type {Object}
@@ -12817,7 +12841,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
      * @name has
      * @memberOf SetCache
      * @param {*} value The value to search for.
-     * @returns {number} Returns `true` if `value` is found, else `false`.
+     * @returns {boolean} Returns `true` if `value` is found, else `false`.
      */
     function setCacheHas(value) {
       return this.__data__.has(value);
@@ -14888,7 +14912,9 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
     function baseUnset(object, path) {
       path = castPath(path, object);
 
-      // Prevent prototype pollution, see: https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
+      // Prevent prototype pollution:
+      // https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
+      // https://github.com/lodash/lodash/security/advisories/GHSA-f23m-r3pf-42rh
       var index = -1,
           length = path.length;
 
@@ -14896,32 +14922,17 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
         return true;
       }
 
-      var isRootPrimitive = object == null || (typeof object !== 'object' && typeof object !== 'function');
-
       while (++index < length) {
-        var key = path[index];
-
-        // skip non-string keys (e.g., Symbols, numbers)
-        if (typeof key !== 'string') {
-          continue;
-        }
+        var key = toKey(path[index]);
 
         // Always block "__proto__" anywhere in the path if it's not expected
         if (key === '__proto__' && !hasOwnProperty.call(object, '__proto__')) {
           return false;
         }
 
-        // Block "constructor.prototype" chains
-        if (key === 'constructor' &&
-            (index + 1) < length &&
-            typeof path[index + 1] === 'string' &&
-            path[index + 1] === 'prototype') {
-
-          // Allow ONLY when the path starts at a primitive root, e.g., _.unset(0, 'constructor.prototype.a')
-          if (isRootPrimitive && index === 0) {
-            continue;
-          }
-
+        // Block constructor/prototype as non-terminal traversal keys to prevent
+        // escaping the object graph into built-in constructors and prototypes.
+        if ((key === 'constructor' || key === 'prototype') && index < length - 1) {
           return false;
         }
       }
@@ -17478,7 +17489,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
 
     /**
      * Creates an array with all falsey values removed. The values `false`, `null`,
-     * `0`, `""`, `undefined`, and `NaN` are falsey.
+     * `0`, `-0`, `0n`, `""`, `undefined`, and `NaN` are falsy.
      *
      * @static
      * @memberOf _
@@ -18017,7 +18028,7 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
 
       while (++index < length) {
         var pair = pairs[index];
-        result[pair[0]] = pair[1];
+        baseAssignValue(result, pair[0], pair[1]);
       }
       return result;
     }
@@ -24677,6 +24688,8 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
      * **Note:** JavaScript follows the IEEE-754 standard for resolving
      * floating-point values which can produce unexpected results.
      *
+     * **Note:** If `lower` is greater than `upper`, the values are swapped.
+     *
      * @static
      * @memberOf _
      * @since 0.7.0
@@ -24690,8 +24703,15 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
      * _.random(0, 5);
      * // => an integer between 0 and 5
      *
+     * // when lower is greater than upper the values are swapped
+     * _.random(5, 0);
+     * // => an integer between 0 and 5
+     *
      * _.random(5);
      * // => also an integer between 0 and 5
+     *
+     * _.random(-5);
+     * // => an integer between -5 and 0
      *
      * _.random(5, true);
      * // => a floating-point number between 0 and 5
@@ -25294,6 +25314,10 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
      * properties may be accessed as free variables in the template. If a setting
      * object is given, it takes precedence over `_.templateSettings` values.
      *
+     * **Security:** `_.template` is insecure and should not be used. It will be
+     * removed in Lodash v5. Avoid untrusted input. See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md).
+     *
      * **Note:** In the development build `_.template` utilizes
      * [sourceURLs](http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl)
      * for easier debugging.
@@ -25401,11 +25425,17 @@ module.exports = new Type('tag:yaml.org,2002:timestamp', {
         options = undefined;
       }
       string = toString(string);
-      options = assignInWith({}, options, settings, customDefaultsAssignIn);
+      options = assignWith({}, options, settings, customDefaultsAssignIn);
 
-      var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn),
+      var imports = assignWith({}, options.imports, settings.imports, customDefaultsAssignIn),
           importsKeys = keys(imports),
           importsValues = baseValues(imports, importsKeys);
+
+      arrayEach(importsKeys, function(key) {
+        if (reForbiddenIdentifierChars.test(key)) {
+          throw new Error(INVALID_TEMPL_IMPORTS_ERROR_TEXT);
+        }
+      });
 
       var isEscaping,
           isEvaluating,

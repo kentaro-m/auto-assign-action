@@ -21,6 +21,19 @@ jobs:
           configuration-path: '.github/some_name_for_configs.yml' # Only needed if you use something other than .github/auto_assign.yml
 ```
 
+By default the configuration file is fetched from the pull request's own repository via the API. Set `local-config: true` to read it from the local filesystem (at `configuration-path`) instead. This lets the configuration live outside the pull request repository — for example a shared configuration checked out into the workspace before this action runs:
+
+```yml
+      - uses: actions/checkout@v4
+        with:
+          repository: my-org/shared-config
+          path: shared-config
+      - uses: kentaro-m/auto-assign-action@v2.0.1
+        with:
+          configuration-path: 'shared-config/auto_assign.yml'
+          local-config: true
+```
+
 Change event that triggers a workflow to the `pull_request_target` if you want to enable the auto-assign action when opening pull requests from fork repositories or bots like Dependabot.
 
 Using dangerous misuse of the `pull_request_target` event can be a security risk, so make sure you understand pros and cons before using it. 
