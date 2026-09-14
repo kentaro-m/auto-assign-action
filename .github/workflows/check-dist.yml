@@ -7,6 +7,7 @@ on:
 
 jobs:
   check-dist:
+    if: ${{ !startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Fail if dist/ is modified

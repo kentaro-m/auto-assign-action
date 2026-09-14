@@ -1,0 +1,40 @@
+name: 'Finalize Release'
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  finalize:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          REF="${{ github.event.pull_request.head.ref }}"
+          echo "version=${REF#release/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag release
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${{ steps.version.outputs.version }}`,
+              name: `v${{ steps.version.outputs.version }}`,
+              generate_release_notes: true,
+            })
