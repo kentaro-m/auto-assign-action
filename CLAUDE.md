@@ -75,12 +75,11 @@ The action expects a YAML configuration file (default `.github/auto_assign.yml`)
 
 ### Distribution
 
-The action uses `@vercel/ncc` to bundle everything into `dist/index.js`. After making changes:
-1. Run `npm run build` to compile TypeScript
-2. Run `npm run package` to create the bundled distribution
-3. Commit both `lib/` and `dist/` directories
+The action uses `@vercel/ncc` to bundle everything into `dist/index.js`. Do **not** commit `lib/` (gitignored, local build output only) or `dist/` in a regular PR — [check-dist.yml](.github/workflows/check-dist.yml) fails any PR that touches `dist/**`, except release PRs on a `release/*` branch.
 
-The action runs on Node 20 (specified in `action.yml`).
+`dist/` is only ever updated by the release process: the `Release` workflow (`workflow_dispatch`) bumps the version, builds, packages, and opens a PR from a `release/v{version}` branch; once that PR's CI passes it auto-merges, and the `Finalize Release` workflow then tags the merge commit and publishes the GitHub Release. During day-to-day development, just run `npm run build` and `npm test` — nothing under `lib/` or `dist/` needs to be committed.
+
+The action runs on Node 24 (specified in `action.yml` and `.node-version`).
 
 ### Testing
 
