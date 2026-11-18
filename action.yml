@@ -9,6 +9,10 @@ inputs:
   configuration-path:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
+  local-config:
+    description: 'Read the configuration file from the local filesystem (at configuration-path) instead of fetching it from the repository via the API. Useful when the configuration lives outside the pull request repository, e.g. a shared config checked out into the workspace.'
+    default: 'false'
+    required: false
 runs:
   using: 'node24'
   main: 'dist/index.js'

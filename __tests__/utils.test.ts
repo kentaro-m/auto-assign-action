@@ -1,8 +1,12 @@
+import * as fs from 'fs'
+import * as os from 'os'
+import * as path from 'path'
 import {
   chooseUsers,
   chooseUsersFromGroups,
   includesSkipKeywords,
   fetchConfigurationFile,
+  readConfigurationFile,
 } from '../src/utils'
 import * as github from '@actions/github'
 
@@ -240,5 +244,43 @@ describe('fetchConfigurationFile', () => {
         ref: 'sha',
       })
     ).rejects.toThrow(/the configuration file is not found/)
+  })
+})
+
+describe('readConfigurationFile', () => {
+  test('reads the configuration file from the local filesystem', () => {
+    const file = path.join(os.tmpdir(), 'auto_assign_local_config.yml')
+    fs.writeFileSync(
+      file,
+      [
+        'addAssignees: false',
+        'addReviewers: true',
+        'reviewers:',
+        '  - reviewerA',
+        '  - reviewerB',
+        '  - reviewerC',
+        '',
+      ].join('\n')
+    )
+
+    try {
+      const config = readConfigurationFile(file)
+
+      expect(config).toEqual({
+        addAssignees: false,
+        addReviewers: true,
+        reviewers: ['reviewerA', 'reviewerB', 'reviewerC'],
+      })
+    } finally {
+      fs.unlinkSync(file)
+    }
+  })
+
+  test('responds with an error if the configuration file is not found', () => {
+    expect(() =>
+      readConfigurationFile(
+        path.join(os.tmpdir(), 'auto_assign_does_not_exist.yml')
+      )
+    ).toThrow(/the configuration file is not found/)
   })
 })
