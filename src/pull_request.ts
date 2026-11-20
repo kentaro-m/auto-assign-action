@@ -3,6 +3,8 @@ import {
   addAssignees,
   Context,
   listPullRequestFiles,
+  listRequestedReviewers,
+  removeRequestedReviewers,
   requestReviewers,
 } from './github'
 import { Client } from './types'
@@ -74,5 +76,38 @@ export class PullRequest {
     }
     const { labels: pullRequestLabels = [] } = this.context.payload.pull_request
     return pullRequestLabels.some((label) => labels.includes(label.name))
+  }
+
+  async keepOnlyOneReviewer(reviewer: string): Promise<void> {
+    const { owner, repo, number: pull_number } = this.context.issue
+    const { data } = await listRequestedReviewers(this.client, {
+      owner,
+      repo,
+      pull_number,
+    })
+
+    const reviewersToRemove = data.users
+      .filter((user) => {
+        const isBot =
+          user.type.toLowerCase() === 'bot' ||
+          user.login.toLowerCase().endsWith('[bot]')
+
+        return !isBot && user.login.toLowerCase() !== reviewer.toLowerCase()
+      })
+      .map((user) => user.login)
+
+    const teamsToRemove = data.teams.map((team) => team.slug)
+
+    if (reviewersToRemove.length === 0 && teamsToRemove.length === 0) {
+      return
+    }
+
+    await removeRequestedReviewers(this.client, {
+      owner,
+      repo,
+      pull_number,
+      reviewers: reviewersToRemove,
+      team_reviewers: teamsToRemove,
+    })
   }
 }

@@ -28,6 +28,10 @@ export function chooseReviewers(
     chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner)
   }
 
+  if (config.keepOnlyOneReviewer && chosenReviewers.length > 1) {
+    chosenReviewers = _.sampleSize(chosenReviewers, 1)
+  }
+
   return chosenReviewers
 }
 

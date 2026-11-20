@@ -32,6 +32,7 @@ export interface Config {
   reviewGroups: ReviewGroups
   assigneeGroups: { [key: string]: string[] }
   runOnDraft?: boolean
+  keepOnlyOneReviewer?: boolean
 }
 
 export async function handlePullRequest(
@@ -137,6 +138,11 @@ export async function handlePullRequest(
 
       if (reviewers.length > 0) {
         await pr.addReviewers(reviewers)
+
+        if (config.keepOnlyOneReviewer) {
+          await pr.keepOnlyOneReviewer(reviewers[0])
+        }
+
         core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
       }
     } catch (error) {

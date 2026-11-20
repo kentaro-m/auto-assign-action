@@ -127,6 +127,11 @@ export interface ListFilesOptions extends PullRequestOptions {
   per_page?: number
 }
 
+export interface RemoveRequestedReviewersOptions extends PullRequestOptions {
+  reviewers: string[]
+  team_reviewers?: string[]
+}
+
 export interface ApiResponse<T> {
   data: T
   status: number
@@ -256,6 +261,39 @@ export async function requestReviewers(
       {
         params: { path: { owner, repo, pull_number } },
         body: { reviewers },
+      }
+    )
+  )
+}
+
+export async function listRequestedReviewers(
+  client: Client,
+  options: PullRequestOptions
+): Promise<ApiResponse<components['schemas']['pull-request-review-request']>> {
+  const { owner, repo, pull_number } = options
+
+  return unwrap(
+    await client.GET(
+      '/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers',
+      {
+        params: { path: { owner, repo, pull_number } },
+      }
+    )
+  )
+}
+
+export async function removeRequestedReviewers(
+  client: Client,
+  options: RemoveRequestedReviewersOptions
+): Promise<ApiResponse<unknown>> {
+  const { owner, repo, pull_number, reviewers, team_reviewers } = options
+
+  return unwrap(
+    await client.DELETE(
+      '/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers',
+      {
+        params: { path: { owner, repo, pull_number } },
+        body: { reviewers, team_reviewers },
       }
     )
   )

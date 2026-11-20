@@ -43,6 +43,9 @@ url_api = "https://api.github.com/repos/zizmorcore/zizmor/releases/assets/537081
 provenance = "github-attestations"
 
 [tools.zizmor."platforms.linux-arm64-musl"]
+checksum = "sha256:018a024d6b6d09733b07f6ef42838d984c23ec04bc9b2acd55f7d67826aeafe5"
+url = "https://github.com/zizmorcore/zizmor/releases/download/v1.30.0/zizmor-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/zizmorcore/zizmor/releases/assets/537081734"
 provenance = "github-attestations"
 
 [tools.zizmor."platforms.linux-x64"]
@@ -52,6 +55,9 @@ url_api = "https://api.github.com/repos/zizmorcore/zizmor/releases/assets/537081
 provenance = "github-attestations"
 
 [tools.zizmor."platforms.linux-x64-musl"]
+checksum = "sha256:ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed"
+url = "https://github.com/zizmorcore/zizmor/releases/download/v1.30.0/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/zizmorcore/zizmor/releases/assets/537081732"
 provenance = "github-attestations"
 
 [tools.zizmor."platforms.macos-arm64"]

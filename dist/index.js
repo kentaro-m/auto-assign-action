@@ -111,6 +111,8 @@ exports.context = exports.GitHubApiError = exports.Context = void 0;
 exports.getOctokit = getOctokit;
 exports.getRepositoryContent = getRepositoryContent;
 exports.requestReviewers = requestReviewers;
+exports.listRequestedReviewers = listRequestedReviewers;
+exports.removeRequestedReviewers = removeRequestedReviewers;
 exports.addAssignees = addAssignees;
 exports.listPullRequestFiles = listPullRequestFiles;
 const fs_1 = __nccwpck_require__(896);
@@ -257,6 +259,23 @@ function requestReviewers(client, options) {
         return unwrap(yield client.POST('/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers', {
             params: { path: { owner, repo, pull_number } },
             body: { reviewers },
+        }));
+    });
+}
+function listRequestedReviewers(client, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { owner, repo, pull_number } = options;
+        return unwrap(yield client.GET('/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers', {
+            params: { path: { owner, repo, pull_number } },
+        }));
+    });
+}
+function removeRequestedReviewers(client, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { owner, repo, pull_number, reviewers, team_reviewers } = options;
+        return unwrap(yield client.DELETE('/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers', {
+            params: { path: { owner, repo, pull_number } },
+            body: { reviewers, team_reviewers },
         }));
     });
 }
@@ -449,6 +468,9 @@ function handlePullRequest(client, context, config) {
                 const reviewers = utils.chooseReviewers(owner, config, changedPaths);
                 if (reviewers.length > 0) {
                     yield pr.addReviewers(reviewers);
+                    if (config.keepOnlyOneReviewer) {
+                        yield pr.keepOnlyOneReviewer(reviewers[0]);
+                    }
                     core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`);
                 }
             }
@@ -588,6 +610,34 @@ class PullRequest {
         }
         const { labels: pullRequestLabels = [] } = this.context.payload.pull_request;
         return pullRequestLabels.some((label) => labels.includes(label.name));
+    }
+    keepOnlyOneReviewer(reviewer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { owner, repo, number: pull_number } = this.context.issue;
+            const { data } = yield (0, github_1.listRequestedReviewers)(this.client, {
+                owner,
+                repo,
+                pull_number,
+            });
+            const reviewersToRemove = data.users
+                .filter((user) => {
+                const isBot = user.type.toLowerCase() === 'bot' ||
+                    user.login.toLowerCase().endsWith('[bot]');
+                return !isBot && user.login.toLowerCase() !== reviewer.toLowerCase();
+            })
+                .map((user) => user.login);
+            const teamsToRemove = data.teams.map((team) => team.slug);
+            if (reviewersToRemove.length === 0 && teamsToRemove.length === 0) {
+                return;
+            }
+            yield (0, github_1.removeRequestedReviewers)(this.client, {
+                owner,
+                repo,
+                pull_number,
+                reviewers: reviewersToRemove,
+                team_reviewers: teamsToRemove,
+            });
+        });
     }
 }
 exports.PullRequest = PullRequest;
@@ -749,6 +799,9 @@ function chooseReviewers(owner, config, changedPaths) {
     }
     else {
         chosenReviewers = chooseUsers(reviewers, numberOfReviewers, owner);
+    }
+    if (config.keepOnlyOneReviewer && chosenReviewers.length > 1) {
+        chosenReviewers = lodash_1.default.sampleSize(chosenReviewers, 1);
     }
     return chosenReviewers;
 }
